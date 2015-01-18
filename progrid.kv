@@ -2,9 +2,51 @@
 
 <ProGrid>:
 
+    header:header
+    footer:footer
+    content:content
+
     canvas.before:
         Color:
-            rgba: .93, .93, .93, 1
+            rgba: root.content_background_color
         Rectangle:  
             pos: root.pos
             size: root.size
+
+    ScrollView:
+        width: root.width
+        height: root.height - 80
+        pos: ( 0, 40 )
+        
+        GridLayout:
+            id: content
+            size_hint: 1, None
+            cols: 1
+
+    BoxLayout:
+        id: header
+        pos: ( 0, root.height-40 )
+        width: root.width
+        height: 40
+
+        canvas.before:
+            Color:
+                rgba: root.header_background_color
+            Rectangle:  
+                pos: self.pos
+                size: self.size[0], 40
+
+    BoxLayout:
+        id: footer
+        pos: ( 0, 0 )
+        width: root.width
+        height: 40
+
+        canvas.before:
+            Color:
+                rgba: root.footer_background_color
+            Rectangle:  
+                pos: self.pos
+                size: self.size[0], 40
+
+

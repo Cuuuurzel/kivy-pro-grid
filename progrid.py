@@ -9,6 +9,7 @@ from kivy.adapters.listadapter import ListAdapter
 from kivy.lang import Builder
 from kivy.properties import *
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 from kivy.uix.listview import ListItemButton, ListView
@@ -77,6 +78,10 @@ class ProGrid( FloatLayout ) :
     Other properties of less interest...
     """
 
+    header  = ObjectProperty( None )
+    content = ObjectProperty( None )
+    footer  = ObjectProperty( None )
+
     text_color = ListProperty( [ 0, 0, 0, .8 ] )
 
     grid_color = ListProperty( [ 0, 0, 0, .5 ] )
@@ -85,11 +90,11 @@ class ProGrid( FloatLayout ) :
     content_font_name = StringProperty( 'font/Roboto-Light.ttf' )
     header_font_name = StringProperty( 'font/Roboto-Medium.ttf' )
     font_size = NumericProperty( 14 )
-    row_width = NumericProperty( 28 )
+    row_height = NumericProperty( 28 )
 
     _data = ListProperty( [] )
 
-    header_background_color = ListProperty( [ .97, .97, .97, 1 ] )
+    header_background_color = ListProperty( [ .8, .8, .8, 1 ] )
     content_background_color = ListProperty( [ .93, .93, .93, 1 ] )
     footer_background_color = ListProperty( [ .8, .8, .8, 1 ] )
 
@@ -99,21 +104,23 @@ class ProGrid( FloatLayout ) :
         super( ProGrid, self ).__init__( **kargs )
 
         #Inner layouts
-        self.content = BoxLayout( 
-            size_hint=(1,.8), pos=(0,40), \
-            orientation='vertical', \
+        """
+        self.content = GridLayout( 
+            size_hint=(1,None), pos=(0,40), \
+            cols=1, \
             background_color=self.content_background_color
         )
         self.add_widget( self.content ) 
-        """
         self.header  = BoxLayout( size_hint=(1,.1), pos=(0,0), background_color=self.header_background_color )
         self.footer  = BoxLayout( size_hint=(1,.1), background_color=self.footer_background_color )
         self.add_widget( self.header ) 
         self.add_widget( self.footer ) 
         """
-    
-        #Force redraw on dataset change
+        
+        #Bindings...
         self.bind( data=self._render )
+        self.bind( font_size=lambda o,v: self.setter('row_height')(o,v*2) )
+
         #Binding occurs after init, so we need to force first setup
         self._render( self.data )
 
@@ -131,13 +138,14 @@ class ProGrid( FloatLayout ) :
             row = self._gen_row( line )
             self.content.add_widget( row )
             self.content.height += row.height
+        print( self.content.height )
         
 
     """
     Will generate a single row.
     """
     def _gen_row( self, line ) :
-        b = BoxLayout()
+        b = BoxLayout( height=self.row_height )
 
         for column in self.columns :
             lbl = Label( 
