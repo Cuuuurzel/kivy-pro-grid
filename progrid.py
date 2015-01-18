@@ -147,7 +147,7 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
     def _render( self, data ) :
 
         if len( data ) > self.data_len_limit : 
-            raise TooMuchDataException( self.data_len_limit, len( data ) )
+            self._raise_too_much_data( len( data ) )
 
         self._setup_data( data )
 
@@ -188,7 +188,6 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
     def _gen_footer( self ) :
         ...
 
-
     """
     Will generate a single row.
     """
@@ -205,7 +204,6 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
 
         return b
 
-
     """
     Will filter and order data rows.
     """
@@ -219,7 +217,6 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
         reverse = False if mode == 'asc' else True
         self._data = sorted( temp, key=lambda o: o[field], reverse=reverse )
          
-
     """
     Will apply given filters.
     """    
@@ -228,6 +225,18 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
             if not self.row_filters[k]( line[k] ) :
                 return False
         return True
+
+    """
+    Called whenever the data limit is surpassed.
+    """
+    def _raise_too_much_data( self, n ) :
+        msg = """data_len_limit: %d - Len of data feed: %d
+You've got this exception because you did feed too much data.
+You can bypass this exception by changing the value of the data_len_limit property.
+Be aware of performance issues.
+""" % ( self.data_len_limit, n )
+        raise ValueError( msg )
+
 
 """
 Put this on your form to allow the user customize the ProGrid.
@@ -238,18 +247,28 @@ class ProGridCustomizator( Button ) :#FloatingAction ) :
         if not 'grid' in kargs.keys() :
             raise ValueError( 'You need to provide a pointer to your grid using the "grid" parameter.' )
         else :
-            self._grid = kargs['grid']
+            self.grid = kargs['grid']
+
         super( ProGridCustomizator, self ).__init__( **kargs )
 
 
-"""
-Raised when you exceed the maximum number of rows...
-"""
-class TooMuchDataException( Exception ) : 
-    def __init__( self, limit, n ) :
-        msg = """data_len_limit: %d - Len of data feed: %d
-You've got this exception because you did feed too much data.
-You can bypass this exception by changing the value of the data_len_limit property.
-Be aware of performance issues.
-""" % ( limit, n )
-        super( TooMuchDataException, self ).__init__( msg )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -32,7 +32,7 @@ class TestApp( App ) :
         )
 
         btn = ProGridCustomizator( 
-            grid=grid, size=(10,10), pos=(100,100) 
+            grid=grid, size_hint=(.1,.1)
         )
 
         self.t = FloatLayout( size_hint=(1,1) )
