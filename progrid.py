@@ -10,10 +10,10 @@ from kivy.graphics import Color, Rectangle
 from kivy.lang import Builder
 from kivy.properties import *
 from kivy.uix.button import Button
+from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.label import Label
 from kivy.uix.listview import ListItemButton, ListView
 from kivy.uix.popup import Popup
 from kivy.uix.selectableview import SelectableView
@@ -54,7 +54,7 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
     data = ListProperty( [] )
 
     """
-    Label for any column.
+    GridLabel for any column.
     """
     headers = DictProperty( {} )
 
@@ -116,7 +116,7 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
     Other properties of less interest...
     """
     text_color = ListProperty( [ 0, 0, 0, .9 ] )
-    grid_color = ListProperty( [ 0, 0, 0, .5 ] )
+    grid_color = ListProperty( [ .5, .5, .5, 1 ] )
     grid_width = NumericProperty( 1 )
     row_height = NumericProperty( 28 )
     font_size = NumericProperty( 14 )
@@ -176,7 +176,7 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
         for column in self.columns :
             lbl = Label( 
                 text=self.headers[column], color=self.text_color, \
-                height=self.header_height, \
+                height=self.header_height, halign='left', \
                 font_size=self.font_size, **font_name
             )
             self.header.add_widget( lbl )
@@ -196,7 +196,7 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
         font_name = {'font_name':self.header_font_name} if self.content_font_name else {}
 
         for column in self.columns :
-            lbl = Label( 
+            lbl = GridLabel( 
                 text=line[column], color=self.text_color, \
                 font_size=self.font_size, **font_name
             )
@@ -252,10 +252,16 @@ class ProGridCustomizator( Button ) :#FloatingAction ) :
         super( ProGridCustomizator, self ).__init__( **kargs )
 
 
+"""
+Label with background color.
+"""
+class GridLabel( Label ) :
 
+    #background_color = ListProperty( [ .93, .93, .93, 1 ] )
+    background_color = ListProperty( [ .93, .93, .93, 1 ] )
 
-
-
+    def __init__( self, **kargs ) : 
+        super( GridLabel, self ).__init__( **kargs )
 
 
 
