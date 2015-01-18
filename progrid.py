@@ -96,6 +96,9 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
     content = ObjectProperty( None )
     content_background_color = ListProperty( [ .93, .93, .93, 1 ] )
     content_font_name = StringProperty( '' ) #'font/Roboto-Light.ttf' )
+    content_align = OptionProperty( 'left', options=['left','center','right'] )
+    content_padding_x = NumericProperty( -5 )
+    content_padding_y = NumericProperty( None )
 
     """
     Header properties...
@@ -104,6 +107,9 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
     header_background_color = ListProperty( [ .8, .8, .8, 1 ] )
     header_font_name = StringProperty( '' ) #'font/Roboto-Medium.ttf' )
     header_height = NumericProperty( 40 )
+    header_align = OptionProperty( 'left', options=['left','center','right'] )
+    header_padding_x = NumericProperty( None )
+    header_padding_y = NumericProperty( None )
 
     """
     Footer properties...
@@ -111,12 +117,15 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
     footer = ObjectProperty( None )
     footer_background_color = ListProperty( [ .8, .8, .8, 1 ] )
     footer_height = NumericProperty( 15 )
+    footer_align = OptionProperty( 'left', options=['left','center','right'] )
+    footer_padding_x = NumericProperty( None )
+    footer_padding_y = NumericProperty( None )
 
     """
     Other properties of less interest...
     """
     text_color = ListProperty( [ 0, 0, 0, .9 ] )
-    grid_color = ListProperty( [ .5, .5, .5, 1 ] )
+    grid_color = ListProperty( [ .8, .8, .8, 1 ] )
     grid_width = NumericProperty( 1 )
     row_height = NumericProperty( 28 )
     font_size = NumericProperty( 14 )
@@ -172,12 +181,21 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
 
         self.header.clear_widgets()
         font_name = {'font_name':self.header_font_name} if self.header_font_name else {}
+        txt_align = {'halign'   :self.header_align    } if self.header_align     else {}
+        padding_x = {'padding_x':self.header_padding_x} if self.header_padding_x else {}
+        padding_y = {'padding_y':self.header_padding_x} if self.header_padding_x else {}
+
+        args = {}
+        args.update( txt_align )
+        args.update( font_name )
+        args.update( padding_x )
+        args.update( padding_y )
 
         for column in self.columns :
             lbl = Label( 
                 text=self.headers[column], color=self.text_color, \
-                height=self.header_height, halign='left', \
-                font_size=self.font_size, **font_name
+                font_size=self.font_size, \
+                **args
             )
             self.header.add_widget( lbl )
 
@@ -192,13 +210,24 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
     Will generate a single row.
     """
     def _gen_row( self, line ) :
-        b = BoxLayout( height=self.row_height, orientation='horizontal' )
-        font_name = {'font_name':self.header_font_name} if self.content_font_name else {}
+        b = BoxLayout( height=self.row_height, orientation='horizontal', spacing=1 )
+
+        font_name = {'font_name':self.content_font_name} if self.content_font_name else {}
+        txt_align = {'halign'   :self.header_align    } if self.header_align     else {}
+        padding_x = {'padding_x':self.content_padding_x} if self.content_padding_x else {}
+        padding_y = {'padding_y':self.content_padding_x} if self.content_padding_x else {}
+
+        args = {}
+        args.update( txt_align )
+        args.update( font_name )
+        args.update( padding_x )
+        args.update( padding_y )
 
         for column in self.columns :
             lbl = GridLabel( 
                 text=line[column], color=self.text_color, \
-                font_size=self.font_size, **font_name
+                font_size=self.font_size, \
+                **args
             )
             b.add_widget( lbl )
 
@@ -239,20 +268,6 @@ Be aware of performance issues.
 
 
 """
-Put this on your form to allow the user customize the ProGrid.
-"""
-class ProGridCustomizator( Button ) :#FloatingAction ) :
-   
-    def __init__( self, **kargs ) :
-        if not 'grid' in kargs.keys() :
-            raise ValueError( 'You need to provide a pointer to your grid using the "grid" parameter.' )
-        else :
-            self.grid = kargs['grid']
-
-        super( ProGridCustomizator, self ).__init__( **kargs )
-
-
-"""
 Label with background color.
 """
 class GridLabel( Label ) :
@@ -262,6 +277,31 @@ class GridLabel( Label ) :
 
     def __init__( self, **kargs ) : 
         super( GridLabel, self ).__init__( **kargs )
+
+
+"""
+Put this on your form to allow the user customize the ProGrid.
+"""
+class ProGridCustomizator( Button ) :#FloatingAction ) :
+       
+    """
+    Grid reference.
+    """
+    grid = ObjectProperty( None )
+
+    def __init__( self, **kargs ) :
+        super( ProGridCustomizator, self ).__init__( **kargs )
+        
+        if not 'grid' in kargs.keys() :
+            raise ValueError( 'You need to provide a pointer to your grid using the "grid" parameter.' )
+        else : self.grid = kargs['grid']
+
+
+
+
+
+
+
 
 
 

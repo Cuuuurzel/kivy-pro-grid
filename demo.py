@@ -31,9 +31,7 @@ class TestApp( App ) :
             size_hint=(1,1), pos=(0,0)
         )
 
-        btn = ProGridCustomizator( 
-            grid=grid, size_hint=(.1,.1)
-        )
+        btn = ProGridCustomizator( text="Costumize", size_hint=(.1, .1), grid=grid )
 
         self.t = FloatLayout( size_hint=(1,1) )
         self.t.add_widget( grid )
