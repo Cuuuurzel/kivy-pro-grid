@@ -82,6 +82,11 @@ class ProGrid( FloatLayout ) :
     grid_color = ListProperty( [ 0, 0, 0, .5 ] )
     grid_width = NumericProperty( 1 )
 
+    content_font_name = StringProperty( 'font/Roboto-Light.ttf' )
+    header_font_name = StringProperty( 'font/Roboto-Medium.ttf' )
+    font_size = NumericProperty( 14 )
+    row_width = NumericProperty( 28 )
+
     _data = ListProperty( [] )
 
     header_background_color = ListProperty( [ .97, .97, .97, 1 ] )
@@ -135,7 +140,10 @@ class ProGrid( FloatLayout ) :
         b = BoxLayout()
 
         for column in self.columns :
-            lbl = Label( text=line[column], color=self.text_color )            
+            lbl = Label( 
+                text=line[column], color=self.text_color, \
+                font_name=self.content_font_name, font_size=self.font_size
+            )
             b.add_widget( lbl )
 
         return b
