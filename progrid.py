@@ -82,8 +82,7 @@ class ProGrid( FloatLayout ) :
     content = ObjectProperty( None )
     footer  = ObjectProperty( None )
 
-    text_color = ListProperty( [ 0, 0, 0, .8 ] )
-
+    text_color = ListProperty( [ 0, 0, 0, .9 ] )
     grid_color = ListProperty( [ 0, 0, 0, .5 ] )
     grid_width = NumericProperty( 1 )
 
@@ -91,6 +90,8 @@ class ProGrid( FloatLayout ) :
     header_font_name = StringProperty( 'font/Roboto-Medium.ttf' )
     font_size = NumericProperty( 14 )
     row_height = NumericProperty( 28 )
+    header_height = NumericProperty( 40 )
+    footer_height = NumericProperty( 15 )
 
     _data = ListProperty( [] )
 
@@ -131,26 +132,32 @@ class ProGrid( FloatLayout ) :
 
         self._setup_data( data )
 
+        #Content
         self.content.clear_widgets()
         self.content.height = 0
 
         for line in self._data :
-            row = self._gen_row( line )
+            row = self._gen_row( line, self.row_height, self.content_font_name )
             self.content.add_widget( row )
             self.content.height += row.height
-        print( self.content.height )
+
+        #Header
+        self.header = self._gen_row( self.headers, self.header_height, self.header_font_name )
+
+        #Footer
+        ...
         
 
     """
     Will generate a single row.
     """
-    def _gen_row( self, line ) :
-        b = BoxLayout( height=self.row_height )
+    def _gen_row( self, line, row_height, font_name ) :
+        b = BoxLayout( height=row_height, orientation='horizontal' )
 
         for column in self.columns :
             lbl = Label( 
                 text=line[column], color=self.text_color, \
-                font_name=self.content_font_name, font_size=self.font_size
+                font_name=font_name, font_size=self.font_size
             )
             b.add_widget( lbl )
 

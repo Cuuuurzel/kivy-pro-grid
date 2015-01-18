@@ -15,8 +15,8 @@
 
     ScrollView:
         width: root.width
-        height: root.height - 80
-        pos: ( 0, 40 )
+        height: root.height - root.header_height - root.footer_height
+        pos: ( 0, root.footer_height )
         
         GridLayout:
             id: content
@@ -25,28 +25,30 @@
 
     BoxLayout:
         id: header
-        pos: ( 0, root.height-40 )
+        pos: ( 0, root.height - root.header_height )
         width: root.width
-        height: 40
+        height: root.header_height
+        orientation: 'horizontal'
 
         canvas.before:
             Color:
                 rgba: root.header_background_color
             Rectangle:  
                 pos: self.pos
-                size: self.size[0], 40
+                size: root.width, root.header_height
 
     BoxLayout:
         id: footer
         pos: ( 0, 0 )
         width: root.width
-        height: 40
+        height: root.footer_height
+        orientation: 'horizontal'
 
         canvas.before:
             Color:
                 rgba: root.footer_background_color
             Rectangle:  
                 pos: self.pos
-                size: self.size[0], 40
+                size: root.width, root.footer_height
 
 

@@ -14,9 +14,9 @@ class TestApp( App ) :
     
     def build( self ) :
 
-        names = 'Federico', 'Mirco', 'Mario', 'Luigi'
-        surnames = 'Curzel', 'Rossi', 'Bianchi', 'Corona'
-        births = [ '%0.2d/%0.2d%0.4d'%( randint(1,31), randint(1,12), randint(1940,2000) ) for i in range(0,100) ]
+        names = 'Federico', 'Mirco', 'Mario', 'Luigi', 'Martin', 'Laura'
+        surnames = 'Curzel', 'Rossi', 'Bianchi', 'Corona', 'Brambilla', 'Vettore'
+        births = [ '%0.2d/%0.2d/%0.4d'%( randint(1,31), randint(1,12), randint(1940,2000) ) for i in range(0,100) ]
 
         data = [ { 'name':choice(names), 'surname':choice(surnames), 'birth':choice(births) } for i in range(0,100) ]
         headers     = { 'name':'Nome', 'surname':'Cognome', 'birth':'Data di nascita' }
