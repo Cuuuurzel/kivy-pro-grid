@@ -24,6 +24,8 @@ from kivy.uix.textinput import TextInput
 from random import random
 import time
 
+from flatui.flatui import *
+
 Builder.load_file( 'progrid.kv' )
 
 """
@@ -282,7 +284,7 @@ class GridLabel( Label ) :
 """
 Put this on your form to allow the user customize the ProGrid.
 """
-class ProGridCustomizator( Button ) :#FloatingAction ) :
+class ProGridCustomizator( FloatingAction ) :
        
     """
     Grid reference.
@@ -291,10 +293,16 @@ class ProGridCustomizator( Button ) :#FloatingAction ) :
 
     def __init__( self, **kargs ) :
         super( ProGridCustomizator, self ).__init__( **kargs )
-        
+
         if not 'grid' in kargs.keys() :
             raise ValueError( 'You need to provide a pointer to your grid using the "grid" parameter.' )
         else : self.grid = kargs['grid']
+
+    """
+    Show costumization panel.
+    """
+    def costumize( self ) :
+        pass
 
 
 
