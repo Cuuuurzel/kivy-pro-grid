@@ -31,14 +31,20 @@ Inspired by DevExpress CxGrid...
 
 -- Features --
 
-Rows :
-    - Filtering
-    - Sorting
-    - Grouping ( not yet )
+    - Rows filtering
+    - Rows sorting
+    - Rows grouping ( not yet )
+    - Columns filtering 
+    - Columns sorting
+    - Allows end-user to costumize the view    
 
-Columns :
-    - Filtering
-    - Sorting
+-- Issues --
+
+    - Still damn slow
+    - Cannot show more than ~2500 rows due to performance
+    - Rows grouping not yet implemented
+    - Not saving user configuration
+
 """
 class ProGrid( BoxLayout ) :#FloatLayout ) :
 
@@ -75,36 +81,54 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
     Rossi   Mario       01/04/2014
     """
     row_sorting = ListProperty( [] )
+    
+    """
+    There still are performance issues...
+    If you feed more than this amount of rows, a TooMuchDataException will be thrown.
+    If you still want to bypass this limit, just update this value.
+    Default is 2000.
+    """
+    data_len_limit = NumericProperty( 2000 )
+ 
+    """
+    Content properties...
+    """
+    content = ObjectProperty( None )
+    content_background_color = ListProperty( [ .93, .93, .93, 1 ] )
+    content_font_name = StringProperty( '' ) #'font/Roboto-Light.ttf' )
 
+    """
+    Header properties...
+    """
+    header = ObjectProperty( None )
+    header_background_color = ListProperty( [ .8, .8, .8, 1 ] )
+    header_font_name = StringProperty( '' ) #'font/Roboto-Medium.ttf' )
+    header_height = NumericProperty( 40 )
+
+    """
+    Footer properties...
+    """
+    footer = ObjectProperty( None )
+    footer_background_color = ListProperty( [ .8, .8, .8, 1 ] )
+    footer_height = NumericProperty( 15 )
 
     """
     Other properties of less interest...
     """
-
-    header  = ObjectProperty( None )
-    content = ObjectProperty( None )
-    footer  = ObjectProperty( None )
-
     text_color = ListProperty( [ 0, 0, 0, .9 ] )
     grid_color = ListProperty( [ 0, 0, 0, .5 ] )
     grid_width = NumericProperty( 1 )
-
-    content_font_name = StringProperty( 'font/Roboto-Light.ttf' )
-    header_font_name = StringProperty( 'font/Roboto-Medium.ttf' )
-    font_size = NumericProperty( 14 )
     row_height = NumericProperty( 28 )
-    header_height = NumericProperty( 40 )
-    footer_height = NumericProperty( 15 )
+    font_size = NumericProperty( 14 )
 
+    """
+    Private stuffs...
+    """
     _data = ListProperty( [] )
-
-    header_background_color = ListProperty( [ .8, .8, .8, 1 ] )
-    content_background_color = ListProperty( [ .93, .93, .93, 1 ] )
-    footer_background_color = ListProperty( [ .8, .8, .8, 1 ] )
 
 
     def __init__( self, **kargs ) :
-        kargs['orientation'] = 'vertical'
+
         super( ProGrid, self ).__init__( **kargs )
 
         #Basic setup
@@ -122,6 +146,9 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
     """
     def _render( self, data ) :
 
+        if len( data ) > self.data_len_limit : 
+            raise TooMuchDataException( self.data_len_limit, len( data ) )
+
         self._setup_data( data )
 
         #Content
@@ -135,32 +162,31 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
 
         #Header & footer
         self._gen_header()
-        #self._gen_footer()
+        self._gen_footer()
         ...
         
+    """
+    Will add columns names to header.
+    """
     def _gen_header( self ) :
 
         self.header.clear_widgets()
-        
+        font_name = {'font_name':self.header_font_name} if self.header_font_name else {}
+
         for column in self.columns :
             lbl = Label( 
                 text=self.headers[column], color=self.text_color, \
                 height=self.header_height, \
-                font_name=self.header_font_name, font_size=self.font_size
+                font_size=self.font_size, **font_name
             )
             self.header.add_widget( lbl )
 
+    """
+    Will prepare footer layout.
+    This view will allow to quickly remove filters.
+    """
     def _gen_footer( self ) :
-
-        self.footer.clear_widgets()
-        
-        for column in self.columns :
-            lbl = Label( 
-                text=self.headers[column], color=self.text_color, \
-                height=self.header_height, \
-                font_name=self.header_font_name, font_size=self.font_size
-            )
-            self.footer.add_widget( lbl )
+        ...
 
 
     """
@@ -168,11 +194,12 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
     """
     def _gen_row( self, line ) :
         b = BoxLayout( height=self.row_height, orientation='horizontal' )
+        font_name = {'font_name':self.header_font_name} if self.content_font_name else {}
 
         for column in self.columns :
             lbl = Label( 
                 text=line[column], color=self.text_color, \
-                font_name=self.content_font_name, font_size=self.font_size
+                font_size=self.font_size, **font_name
             )
             b.add_widget( lbl )
 
@@ -202,6 +229,27 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
                 return False
         return True
 
+"""
+Put this on your form to allow the user customize the ProGrid.
+"""
+class ProGridCustomizator( Button ) :#FloatingAction ) :
+   
+    def __init__( self, **kargs ) :
+        if not 'grid' in kargs.keys() :
+            raise ValueError( 'You need to provide a pointer to your grid using the "grid" parameter.' )
+        else :
+            self._grid = kargs['grid']
+        super( ProGridCustomizator, self ).__init__( **kargs )
 
 
-
+"""
+Raised when you exceed the maximum number of rows...
+"""
+class TooMuchDataException( Exception ) : 
+    def __init__( self, limit, n ) :
+        msg = """data_len_limit: %d - Len of data feed: %d
+You've got this exception because you did feed too much data.
+You can bypass this exception by changing the value of the data_len_limit property.
+Be aware of performance issues.
+""" % ( limit, n )
+        super( TooMuchDataException, self ).__init__( msg )
