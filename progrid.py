@@ -10,12 +10,12 @@ from kivy.graphics import Color, Rectangle
 from kivy.lang import Builder
 from kivy.properties import *
 from kivy.uix.button import Button
+from kivy.uix.checkbox import CheckBox
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.listview import ListItemButton, ListView
-from kivy.uix.popup import Popup
 from kivy.uix.selectableview import SelectableView
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.stacklayout import StackLayout
@@ -24,7 +24,7 @@ from kivy.uix.textinput import TextInput
 from random import random
 import time
 
-from flatui.flatui import *
+from flatui.flatui import FlatTextInput, FlatPopup, FloatingAction
 
 Builder.load_file( 'progrid.kv' )
 
@@ -48,7 +48,7 @@ Inspired by DevExpress CxGrid...
     - Not saving user configuration
 
 """
-class ProGrid( BoxLayout ) :#FloatLayout ) :
+class ProGrid( BoxLayout ) :
 
     """
     Data to display, array of dictionaries.
@@ -98,6 +98,7 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
     content = ObjectProperty( None )
     content_background_color = ListProperty( [ .93, .93, .93, 1 ] )
     content_font_name = StringProperty( '' ) #'font/Roboto-Light.ttf' )
+    content_font_size = NumericProperty( 15 )
     content_align = OptionProperty( 'left', options=['left','center','right'] )
     content_padding_x = NumericProperty( -5 )
     content_padding_y = NumericProperty( None )
@@ -108,6 +109,7 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
     header = ObjectProperty( None )
     header_background_color = ListProperty( [ .8, .8, .8, 1 ] )
     header_font_name = StringProperty( '' ) #'font/Roboto-Medium.ttf' )
+    header_font_size = NumericProperty( 16 )
     header_height = NumericProperty( 40 )
     header_align = OptionProperty( 'left', options=['left','center','right'] )
     header_padding_x = NumericProperty( None )
@@ -130,7 +132,6 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
     grid_color = ListProperty( [ .8, .8, .8, 1 ] )
     grid_width = NumericProperty( 1 )
     row_height = NumericProperty( 28 )
-    font_size = NumericProperty( 14 )
 
     """
     Private stuffs...
@@ -147,7 +148,7 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
         
         #Bindings...
         self.bind( data=self._render )
-        self.bind( font_size=lambda o,v: self.setter('row_height')(o,v*2) )
+        self.bind( content_font_size=lambda o,v: self.setter('row_height')(o,v*2) )
 
         #Binding occurs after init, so we need to force first setup
         self._render( self.data )
@@ -196,7 +197,7 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
         for column in self.columns :
             lbl = Label( 
                 text=self.headers[column], color=self.text_color, \
-                font_size=self.font_size, \
+                font_size=self.header_font_size, \
                 **args
             )
             self.header.add_widget( lbl )
@@ -228,7 +229,7 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
         for column in self.columns :
             lbl = GridLabel( 
                 text=line[column], color=self.text_color, \
-                font_size=self.font_size, \
+                font_size=self.content_font_size, \
                 **args
             )
             b.add_widget( lbl )
@@ -239,14 +240,21 @@ class ProGrid( BoxLayout ) :#FloatLayout ) :
     Will filter and order data rows.
     """
     def _setup_data( self, data ) :
+        
+        self._data = []
 
-        #Filtering
-        temp = filter( self._validate_line, data )
+        if len( data ) > 0 :
 
-        #Sorting
-        field, mode = self.row_sorting[0]
-        reverse = False if mode == 'asc' else True
-        self._data = sorted( temp, key=lambda o: o[field], reverse=reverse )
+            #Data used by customizator
+            self._all_columns = sorted( data[0].keys() )
+
+            #Filtering
+            temp = filter( self._validate_line, data )
+
+            #Sorting
+            field, mode = self.row_sorting[0]
+            reverse = False if mode == 'asc' else True
+            self._data = sorted( temp, key=lambda o: o[field], reverse=reverse )
          
     """
     Will apply given filters.
@@ -274,7 +282,6 @@ Label with background color.
 """
 class GridLabel( Label ) :
 
-    #background_color = ListProperty( [ .93, .93, .93, 1 ] )
     background_color = ListProperty( [ .93, .93, .93, 1 ] )
 
     def __init__( self, **kargs ) : 
@@ -285,11 +292,26 @@ class GridLabel( Label ) :
 Put this on your form to allow the user customize the ProGrid.
 """
 class ProGridCustomizator( FloatingAction ) :
-       
+    
+    """
+    Will be used as popup title.
+    """       
+    popup_title = StringProperty( 'Costumize your grid' )
+    
+    """
+    Will be used as hint in every field to ask the user to put a filter.
+    """       
+    hint_filter = StringProperty( 'Filter, e.g. > 10' )
+
     """
     Grid reference.
     """
     grid = ObjectProperty( None )
+
+    """
+    Popup reference.
+    """
+    popup = ObjectProperty( None )
 
     def __init__( self, **kargs ) :
         super( ProGridCustomizator, self ).__init__( **kargs )
@@ -302,7 +324,41 @@ class ProGridCustomizator( FloatingAction ) :
     Show costumization panel.
     """
     def costumize( self ) :
-        pass
+        self.popup = FlatPopup( 
+            size_hint=(.9,.9), \
+            title=self.popup_title, \
+            title_size=20, \
+            title_color=[0,0,0,.8], \
+            content=self._build_content()
+        )
+        self.popup.open()
+
+    """
+    Will build popup content.
+    """
+    def _build_content( self ) :
+        #content = StackLayout( orientation='rl-tb' )
+        content = BoxLayout( orientation='vertical', margin=10 )
+        self._columns = []
+        
+        for column in self.grid._all_columns :
+            row = BoxLayout( orientation='horizontal', size_hint=(1,None), height=30 )
+            chk = CheckBox( active=( column in self.grid.columns ) )
+            lbl = Label( text=self.grid.headers[column], color=[0,0,0,.8] )
+            fil = FlatTextInput( text='', hint_text=self.hint_filter, multiline=False, valign='middle' )
+    
+            row.add_widget( chk )
+            row.add_widget( lbl )
+            row.add_widget( fil )
+
+            content.add_widget( row )
+
+            self._columns.append( [ chk, lbl, fil ] )
+
+        #Fix for layout
+        content.add_widget( BoxLayout() )
+
+        return content
 
 
 
