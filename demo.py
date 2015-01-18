@@ -18,11 +18,11 @@ class TestApp( App ) :
         surnames = 'Curzel', 'Rossi', 'Bianchi', 'Corona', 'Brambilla', 'Vettore'
         births = [ '%0.2d/%0.2d/%0.4d'%( randint(1,31), randint(1,12), randint(1940,2000) ) for i in range(0,100) ]
 
-        data = [ { 'name':choice(names), 'surname':choice(surnames), 'birth':choice(births) } for i in range(0,100) ]
+        data = [ { 'name':choice(names), 'surname':choice(surnames), 'birth':choice(births) } for i in range(0,1000) ]
         headers     = { 'name':'Nome', 'surname':'Cognome', 'birth':'Data di nascita' }
-        columns     = [ 'name', 'surname', 'birth' ]
+        columns     = [ 'surname', 'name', 'birth' ]
         row_filters = { 'name':lambda n: n.startswith('M') } 
-        row_sorting = [ ['birth','asc'] ]
+        row_sorting = [ ['surname','asc'] ]
     
         self.t = ProGrid( 
             headers=headers, data=data, columns=columns, \

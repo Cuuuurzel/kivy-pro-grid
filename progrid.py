@@ -6,8 +6,10 @@ import json
 
 from kivy.adapters.dictadapter import DictAdapter
 from kivy.adapters.listadapter import ListAdapter
+from kivy.graphics import Color, Rectangle
 from kivy.lang import Builder
 from kivy.properties import *
+from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.floatlayout import FloatLayout
@@ -19,6 +21,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.textinput import TextInput
 
+from random import random
 import time
 
 Builder.load_file( 'progrid.kv' )
@@ -37,7 +40,7 @@ Columns :
     - Filtering
     - Sorting
 """
-class ProGrid( FloatLayout ) :
+class ProGrid( BoxLayout ) :#FloatLayout ) :
 
     """
     Data to display, array of dictionaries.
@@ -104,19 +107,8 @@ class ProGrid( FloatLayout ) :
         kargs['orientation'] = 'vertical'
         super( ProGrid, self ).__init__( **kargs )
 
-        #Inner layouts
-        """
-        self.content = GridLayout( 
-            size_hint=(1,None), pos=(0,40), \
-            cols=1, \
-            background_color=self.content_background_color
-        )
-        self.add_widget( self.content ) 
-        self.header  = BoxLayout( size_hint=(1,.1), pos=(0,0), background_color=self.header_background_color )
-        self.footer  = BoxLayout( size_hint=(1,.1), background_color=self.footer_background_color )
-        self.add_widget( self.header ) 
-        self.add_widget( self.footer ) 
-        """
+        #Basic setup
+        ...    
         
         #Bindings...
         self.bind( data=self._render )
@@ -137,27 +129,50 @@ class ProGrid( FloatLayout ) :
         self.content.height = 0
 
         for line in self._data :
-            row = self._gen_row( line, self.row_height, self.content_font_name )
+            row = self._gen_row( line )
             self.content.add_widget( row )
             self.content.height += row.height
 
-        #Header
-        self.header = self._gen_row( self.headers, self.header_height, self.header_font_name )
-
-        #Footer
+        #Header & footer
+        self._gen_header()
+        #self._gen_footer()
         ...
         
+    def _gen_header( self ) :
+
+        self.header.clear_widgets()
+        
+        for column in self.columns :
+            lbl = Label( 
+                text=self.headers[column], color=self.text_color, \
+                height=self.header_height, \
+                font_name=self.header_font_name, font_size=self.font_size
+            )
+            self.header.add_widget( lbl )
+
+    def _gen_footer( self ) :
+
+        self.footer.clear_widgets()
+        
+        for column in self.columns :
+            lbl = Label( 
+                text=self.headers[column], color=self.text_color, \
+                height=self.header_height, \
+                font_name=self.header_font_name, font_size=self.font_size
+            )
+            self.footer.add_widget( lbl )
+
 
     """
     Will generate a single row.
     """
-    def _gen_row( self, line, row_height, font_name ) :
-        b = BoxLayout( height=row_height, orientation='horizontal' )
+    def _gen_row( self, line ) :
+        b = BoxLayout( height=self.row_height, orientation='horizontal' )
 
         for column in self.columns :
             lbl = Label( 
                 text=line[column], color=self.text_color, \
-                font_name=font_name, font_size=self.font_size
+                font_name=self.content_font_name, font_size=self.font_size
             )
             b.add_widget( lbl )
 

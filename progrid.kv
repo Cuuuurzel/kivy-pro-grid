@@ -13,20 +13,9 @@
             pos: root.pos
             size: root.size
 
-    ScrollView:
-        width: root.width
-        height: root.height - root.header_height - root.footer_height
-        pos: ( 0, root.footer_height )
-        
-        GridLayout:
-            id: content
-            size_hint: 1, None
-            cols: 1
-
     BoxLayout:
         id: header
-        pos: ( 0, root.height - root.header_height )
-        width: root.width
+        size_hint: ( 1, None )
         height: root.header_height
         orientation: 'horizontal'
 
@@ -35,12 +24,20 @@
                 rgba: root.header_background_color
             Rectangle:  
                 pos: self.pos
-                size: root.width, root.header_height
+                size: self.width, root.header_height
+
+    ScrollView:
+        size_hint: ( 1, 1 )
+        bar_width: 7
+        
+        GridLayout:
+            id: content
+            size_hint: 1, None
+            cols: 1
 
     BoxLayout:
         id: footer
-        pos: ( 0, 0 )
-        width: root.width
+        size_hint: ( 1, .05 )
         height: root.footer_height
         orientation: 'horizontal'
 
