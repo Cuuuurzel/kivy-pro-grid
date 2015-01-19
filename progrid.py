@@ -24,7 +24,7 @@ from kivy.uix.textinput import TextInput
 from random import random
 import time
 
-from flatui.flatui import FlatTextInput, FlatPopup, FloatingAction
+from flatui.flatui import FlatButton, FlatTextInput, FlatPopup, FloatingAction
 
 Builder.load_file( 'progrid.kv' )
 
@@ -294,14 +294,12 @@ Put this on your form to allow the user customize the ProGrid.
 class ProGridCustomizator( FloatingAction ) :
     
     """
-    Will be used as popup title.
+    String properties to be translated eventually.
     """       
-    popup_title = StringProperty( 'Costumize your grid' )
-    
-    """
-    Will be used as hint in every field to ask the user to put a filter.
-    """       
-    hint_filter = StringProperty( 'Filter, e.g. > 10' )
+    popup_title = StringProperty( 'Costumize your grid' )     
+    hint_filter = StringProperty( 'No filter' )
+    how_to_filter = StringProperty( """Write any text to filter rows, for example : 'ar', will match 'ARon', 'mARio' and so on.
+You can also use operators, like '> 15' or '== "Mario"'.""" )
 
     """
     Grid reference.
@@ -325,7 +323,7 @@ class ProGridCustomizator( FloatingAction ) :
     """
     def costumize( self ) :
         self.popup = FlatPopup( 
-            size_hint=(.9,.9), \
+            size_hint=(.8,.8), \
             title=self.popup_title, \
             title_size=20, \
             title_color=[0,0,0,.8], \
@@ -337,8 +335,11 @@ class ProGridCustomizator( FloatingAction ) :
     Will build popup content.
     """
     def _build_content( self ) :
-        #content = StackLayout( orientation='rl-tb' )
+        x = BoxLayout( orientation='vertical', margin=10 )
         content = BoxLayout( orientation='vertical', margin=10 )
+        spacer = BoxLayout( size_hint=(1,1) )  
+        footer = BoxLayout( orientation='horizontal', spacing=10, size_hint=(1,.2) )
+
         self._columns = []
         
         for column in self.grid._all_columns :
@@ -355,10 +356,18 @@ class ProGridCustomizator( FloatingAction ) :
 
             self._columns.append( [ chk, lbl, fil ] )
 
-        #Fix for layout
-        content.add_widget( BoxLayout() )
 
-        return content
+        args = { 'size_hint':(.2,1), 'background_color':[0,.59,.53,1], 'background_color_down':[0,.41,.36,1] }
+        footer.add_widget( Label( text=self.how_to_filter, color=[0,0,0,.8], font_size=11 ) )
+        footer.add_widget( FlatButton( text='X', **args ) )
+        footer.add_widget( FlatButton( text='OK', **args ) )
+
+        x.add_widget( content )
+        x.add_widget( spacer )
+        x.add_widget( footer )
+        #x.add_widget( buttons )
+
+        return x
 
 
 
