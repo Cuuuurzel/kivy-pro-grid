@@ -24,7 +24,7 @@ from kivy.uix.textinput import TextInput
 from random import random
 import time
 
-from flatui.flatui import FlatButton, FlatTextInput, FlatPopup, FloatingAction
+from flatui.flatui import AlertPopup, FlatButton, FlatTextInput, FlatPopup, FloatingAction
 
 Builder.load_file( 'progrid.kv' )
 
@@ -294,6 +294,16 @@ class GridLabel( Label ) :
 
 """
 Put this on your form to allow the user customize the ProGrid.
+
+Currently, three kind of filters are supported :
+
+ 1) Simple text filter : 'ar' will match 'aron' and 'mario'.
+ 2) Expressions starting with Python comparison operators.
+    Those are checked and evalued using eval.
+    For example, '> 14' or '== 0'
+ 3) Expressions containing '$VAL'.
+    Those are checked and evalued using eval.
+    For example, '$VAL.startswith( "M" )'.
 """
 class ProGridCustomizator( FloatingAction ) :
     
@@ -302,7 +312,8 @@ class ProGridCustomizator( FloatingAction ) :
     """       
     popup_title = StringProperty( 'Customize your grid' )     
     hint_filter = StringProperty( 'No filter' )
-    how_to_filter = StringProperty( """Write any text to filter rows, for example : 'ar', will match 'ARon', 'mARio' and so on.
+    cannot_use_expression_for_field = StringProperty( "Cannot use filter for field %s" )
+    how_to_filter = StringProperty( """Write any text to filter rows, for example : 'ar', will match 'aron', 'mario' and so on.
 You can also use operators, like '> 15' or '== "Mario"'.""" )
 
     """
@@ -332,15 +343,48 @@ You can also use operators, like '> 15' or '== "Mario"'.""" )
     Will save changes, reaload the grid and dismiss popup.
     """
     def save_and_exit( self, *args ) :
+        self._filter_error_occur = False
+        self.grid.columns = self._get_columns()
+        self.grid.row_filters = self._get_row_filters()
+        if not self._filter_error_occur : self.exit_customizer()
 
+    """
+    Will return the filters to be applied on the grid content.
+    """
+    def _get_row_filters( self ) :
+        
+        #{ 'name':lambda n: n.startswith('M') } 
+
+        filters = {}
+        for column in self.grid._all_columns :
+            chk, lbl, fil = self._columns[ column ]
+            if len( fil.text.strip() ) > 0 :
+
+                expression = fil.text.strip()
+
+                if expression[0] in '< <= => > == != and or'.split(' ') :
+                    raise NotImplemented()
+                elif '$VAL' in expression :                 
+                    foo = 'lambda VAL: %s' % ( expression.replace('$VAL','VAL') )
+                    try :
+                        filters[ column ] = eval( foo )
+                    except Exception as e :
+                        AlertPopup( text=self.cannot_use_expression_for_field % ( lbl.text.lower() ) ).open()
+                        self._filter_error_occur = True
+                        print( e )
+        return filters
+            
+
+    """
+    Will return the ordered list of columns to be shown.
+    """
+    def _get_columns( self ) :
         columns = []
         for column in self.grid._all_columns :
             chk, lbl, fil = self._columns[ column ]
             if chk.active :
                 columns.append( column )
-        self.grid.columns = columns
-
-        self.exit_customizer()
+        return columns
 
     """
     Show customization panel.
