@@ -38,7 +38,7 @@ Inspired by DevExpress CxGrid...
     - Rows grouping ( not yet )
     - Columns filtering 
     - Columns sorting
-    - Allows end-user to costumize the view    
+    - Allows end-user to customize the view    
 
 -- Issues --
 
@@ -96,7 +96,7 @@ class ProGrid( BoxLayout ) :
     Content properties...
     """
     content = ObjectProperty( None )
-    content_background_color = ListProperty( [ .93, .93, .93, 1 ] )
+    content_background_color = ListProperty( [ .95, .95, .95, 1 ] )
     content_font_name = StringProperty( '' ) #'font/Roboto-Light.ttf' )
     content_font_size = NumericProperty( 15 )
     content_align = OptionProperty( 'left', options=['left','center','right'] )
@@ -282,7 +282,7 @@ Label with background color.
 """
 class GridLabel( Label ) :
 
-    background_color = ListProperty( [ .93, .93, .93, 1 ] )
+    background_color = ListProperty( [ .95, .95, .95, 1 ] )
 
     def __init__( self, **kargs ) : 
         super( GridLabel, self ).__init__( **kargs )
@@ -296,7 +296,7 @@ class ProGridCustomizator( FloatingAction ) :
     """
     String properties to be translated eventually.
     """       
-    popup_title = StringProperty( 'Costumize your grid' )     
+    popup_title = StringProperty( 'Customize your grid' )     
     hint_filter = StringProperty( 'No filter' )
     how_to_filter = StringProperty( """Write any text to filter rows, for example : 'ar', will match 'ARon', 'mARio' and so on.
 You can also use operators, like '> 15' or '== "Mario"'.""" )
@@ -319,9 +319,21 @@ You can also use operators, like '> 15' or '== "Mario"'.""" )
         else : self.grid = kargs['grid']
 
     """
-    Show costumization panel.
+    Will exit customizer without commit changes.
     """
-    def costumize( self ) :
+    def exit_customizer( self, *args ) :
+        self.popup.dismiss()
+
+    """
+    Will save changes, reaload the grid and dismiss popup.
+    """
+    def save_and_exit( self, *args ) :
+        self.exit_customizer()
+
+    """
+    Show customization panel.
+    """
+    def customize( self ) :
         self.popup = FlatPopup( 
             size_hint=(.8,.8), \
             title=self.popup_title, \
@@ -332,40 +344,57 @@ You can also use operators, like '> 15' or '== "Mario"'.""" )
         self.popup.open()
 
     """
+    Will build popup content footer.
+    """
+    def _build_footer( self ) :
+
+        footer = BoxLayout( orientation='horizontal', spacing=10, size_hint=(1,.2) )        
+        args = { 'size_hint':(.2,1), 'background_color':[0,.59,.53,1], 'background_color_down':[0,.41,.36,1] }
+        footer.add_widget( Label( text=self.how_to_filter, color=[0,0,0,.8], font_size=11 ) )
+        
+        cancel_button = FlatButton( text='X', **args )
+        cancel_button.bind( on_press=self.exit_customizer )
+
+        ok_button = FlatButton( text='OK', **args )
+        ok_button.bind( on_press=self.save_and_exit )
+
+        footer.add_widget( cancel_button )
+        footer.add_widget( ok_button )
+        return footer
+
+    """
+    Will build a single popup content row.
+    """
+    def _build_content_row( self, column ) :
+
+        row = BoxLayout( orientation='horizontal', size_hint=(1,None), height=30 )
+        chk = CheckBox( active=( column in self.grid.columns ) )
+        fil = FlatTextInput( text='', hint_text=self.hint_filter, multiline=False, valign='middle' )
+        lbl = Label( text=self.grid.headers[column], color=[0,0,0,.8], halign='left', valign='middle' )
+        lbl.bind( size=lbl.setter('text_size') )
+   
+        row.add_widget( chk )
+        row.add_widget( lbl )
+        row.add_widget( fil )
+        return row, chk, lbl, fil 
+
+    """
     Will build popup content.
     """
     def _build_content( self ) :
-        x = BoxLayout( orientation='vertical', margin=10 )
+        x = BoxLayout( orientation='vertical', padding=[5,5,5,10])
         content = BoxLayout( orientation='vertical', margin=10 )
-        spacer = BoxLayout( size_hint=(1,1) )  
-        footer = BoxLayout( orientation='horizontal', spacing=10, size_hint=(1,.2) )
 
         self._columns = []
         
         for column in self.grid._all_columns :
-            row = BoxLayout( orientation='horizontal', size_hint=(1,None), height=30 )
-            chk = CheckBox( active=( column in self.grid.columns ) )
-            lbl = Label( text=self.grid.headers[column], color=[0,0,0,.8] )
-            fil = FlatTextInput( text='', hint_text=self.hint_filter, multiline=False, valign='middle' )
-    
-            row.add_widget( chk )
-            row.add_widget( lbl )
-            row.add_widget( fil )
-
+            row, chk, lbl, fil = self._build_content_row( column ) 
             content.add_widget( row )
-
             self._columns.append( [ chk, lbl, fil ] )
 
-
-        args = { 'size_hint':(.2,1), 'background_color':[0,.59,.53,1], 'background_color_down':[0,.41,.36,1] }
-        footer.add_widget( Label( text=self.how_to_filter, color=[0,0,0,.8], font_size=11 ) )
-        footer.add_widget( FlatButton( text='X', **args ) )
-        footer.add_widget( FlatButton( text='OK', **args ) )
-
         x.add_widget( content )
-        x.add_widget( spacer )
-        x.add_widget( footer )
-        #x.add_widget( buttons )
+        x.add_widget( BoxLayout( size_hint=(1,1) )   )
+        x.add_widget( self._build_footer() )
 
         return x
 
