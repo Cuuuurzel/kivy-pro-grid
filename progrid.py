@@ -313,7 +313,10 @@ class ProGridCustomizator( FloatingAction ) :
     """       
     popup_title = StringProperty( 'Customize your grid' )     
     hint_filter = StringProperty( 'No filter' )
-    cannot_use_expression_for_field = StringProperty( "Cannot use filter for field %s" )
+    cannot_use_expression_for_field = StringProperty( """
+Cannot use filter for field %s.
+Press on '?' for more information.
+""" )
     filters_help = StringProperty( """
 Three kind of filters are supported :
 
@@ -370,17 +373,19 @@ Please quote ( '' ) any text in your filters.""" )
             if len( fil.text.strip() ) > 0 :
 
                 expression = fil.text.strip()
-
+    
                 if expression[0] in '< <= => > == != and or'.split(' ') :
-                    raise NotImplemented()
-                elif '$VAL' in expression :                 
+                    foo = 'lambda VAL: %s' % ( 'VAL ' + expression )
+
+                if '$VAL' in expression :                 
                     foo = 'lambda VAL: %s' % ( expression.replace('$VAL','VAL') )
-                    try :
-                        filters[ column ] = eval( foo )
-                    except Exception as e :
-                        AlertPopup( text=self.cannot_use_expression_for_field % ( lbl.text.lower() ) ).open()
-                        self._filter_error_occur = True
-                        print( e )
+
+                try :
+                    filters[ column ] = eval( foo )
+                except Exception as e :
+                    AlertPopup( text=self.cannot_use_expression_for_field % ( lbl.text.lower() ) ).open()
+                    self._filter_error_occur = True
+                    print( e )
         return filters
             
 
