@@ -24,7 +24,8 @@ from kivy.uix.textinput import TextInput
 from random import random
 import time
 
-from flatui.flatui import AlertPopup, FlatButton, FlatTextInput, FlatPopup, FloatingAction
+from flatui.flatui import FlatButton, FlatTextInput, FloatingAction
+from flatui.popups import AlertPopup, FlatPopup, OkButtonPopup
 
 Builder.load_file( 'progrid.kv' )
 
@@ -313,8 +314,16 @@ class ProGridCustomizator( FloatingAction ) :
     popup_title = StringProperty( 'Customize your grid' )     
     hint_filter = StringProperty( 'No filter' )
     cannot_use_expression_for_field = StringProperty( "Cannot use filter for field %s" )
-    how_to_filter = StringProperty( """Write any text to filter rows, for example : 'ar', will match 'aron', 'mario' and so on.
-You can also use operators, like '> 15' or '== "Mario"'.""" )
+    filters_help = StringProperty( """
+Three kind of filters are supported :
+
+ 1) Simple text filter, for example, 'ar' will match 'aron' and 'mario'.
+ 2) Expressions starting comparison operators ( <, <=, =>, >, == and != ).
+    For example, '> 14' or '== 0'.
+ 3) Expressions containing '$VAL'.
+    For example, '$VAL == "M"'.
+
+Please quote ( '' ) any text in your filters.""" )
 
     """
     Grid reference.
@@ -328,7 +337,7 @@ You can also use operators, like '> 15' or '== "Mario"'.""" )
 
     def __init__( self, **kargs ) :
         super( ProGridCustomizator, self ).__init__( **kargs )
-
+        self._help_popup = OkButtonPopup( text=self.filters_help )
         if not 'grid' in kargs.keys() :
             raise ValueError( 'You need to provide a pointer to your grid using the "grid" parameter.' )
         else : self.grid = kargs['grid']
@@ -406,14 +415,18 @@ You can also use operators, like '> 15' or '== "Mario"'.""" )
 
         footer = BoxLayout( orientation='horizontal', spacing=10, size_hint=(1,.2) )        
         args = { 'size_hint':(.2,1), 'background_color':[0,.59,.53,1], 'background_color_down':[0,.41,.36,1] }
-        footer.add_widget( Label( text=self.how_to_filter, color=[0,0,0,.8], font_size=11 ) )
         
+        txt = '[ref=main][b]       ?       [/b][/ref]'
+        lbl = Label( text=txt, markup=True, color=[0,0,0,.8], font_size=18 )
+        lbl.bind( on_ref_press=self._help_popup.open )
+
         cancel_button = FlatButton( text='X', **args )
         cancel_button.bind( on_press=self.exit_customizer )
 
         ok_button = FlatButton( text='OK', **args )
         ok_button.bind( on_press=self.save_and_exit )
 
+        footer.add_widget( lbl )
         footer.add_widget( cancel_button )
         footer.add_widget( ok_button )
         return footer
