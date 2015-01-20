@@ -148,6 +148,10 @@ class ProGrid( BoxLayout ) :
         
         #Bindings...
         self.bind( data=self._render )
+        self.bind( columns=self._render )
+        self.bind( row_filters=self._render )
+        self.bind( row_sorting=self._render )
+        self.bind( data_len_limit=self._render )
         self.bind( content_font_size=lambda o,v: self.setter('row_height')(o,v*2) )
 
         #Binding occurs after init, so we need to force first setup
@@ -156,12 +160,12 @@ class ProGrid( BoxLayout ) :
     """
     Will re-render the grid.
     """
-    def _render( self, data ) :
+    def _render( self, *args ) :
 
-        if len( data ) > self.data_len_limit : 
-            self._raise_too_much_data( len( data ) )
+        if len( self.data ) > self.data_len_limit : 
+            self._raise_too_much_data( len( self.data ) )
 
-        self._setup_data( data )
+        self._setup_data( self.data )
 
         #Content
         self.content.clear_widgets()
@@ -328,6 +332,14 @@ You can also use operators, like '> 15' or '== "Mario"'.""" )
     Will save changes, reaload the grid and dismiss popup.
     """
     def save_and_exit( self, *args ) :
+
+        columns = []
+        for column in self.grid._all_columns :
+            chk, lbl, fil = self._columns[ column ]
+            if chk.active :
+                columns.append( column )
+        self.grid.columns = columns
+
         self.exit_customizer()
 
     """
@@ -385,12 +397,12 @@ You can also use operators, like '> 15' or '== "Mario"'.""" )
         x = BoxLayout( orientation='vertical', padding=[5,5,5,10])
         content = BoxLayout( orientation='vertical', margin=10 )
 
-        self._columns = []
+        self._columns = {}
         
         for column in self.grid._all_columns :
             row, chk, lbl, fil = self._build_content_row( column ) 
             content.add_widget( row )
-            self._columns.append( [ chk, lbl, fil ] )
+            self._columns[ column ] = chk, lbl, fil
 
         x.add_widget( content )
         x.add_widget( BoxLayout( size_hint=(1,1) )   )
