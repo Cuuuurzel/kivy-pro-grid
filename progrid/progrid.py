@@ -374,7 +374,7 @@ Please quote ( '' ) any text in your filters.""" )
     def save_and_exit( self, *args ) :
         self._filter_error_occur = False
         self.grid.columns = self._get_columns()
-        self.grid.row_filters = self._get_row_filters()
+        self.grid.row_filters, self.grid.row_filters_names = self._get_row_filters()
         if not self._filter_error_occur : self.exit_customizer()
 
     """
@@ -385,6 +385,7 @@ Please quote ( '' ) any text in your filters.""" )
         #{ 'name':lambda n: n.startswith('M') } 
 
         filters = {}
+        filters_names = {}
         for column in self.grid._all_columns :
             chk, lbl, fil = self._columns[ column ]
             if len( fil.text.strip() ) > 0 :
@@ -399,11 +400,13 @@ Please quote ( '' ) any text in your filters.""" )
 
                 try :
                     filters[ column ] = eval( foo )
+                    filters_names[ column ] = expression
                 except Exception as e :
                     AlertPopup( text=self.cannot_use_expression_for_field % ( lbl.text.lower() ) ).open()
                     self._filter_error_occur = True
                     print( e )
-        return filters
+
+        return filters, filters_names
             
 
     """
@@ -460,7 +463,11 @@ Please quote ( '' ) any text in your filters.""" )
 
         row = BoxLayout( orientation='horizontal', size_hint=(1,None), height=30 )
         chk = CheckBox( active=( column in self.grid.columns ) )
-        fil = FlatTextInput( text='', hint_text=self.hint_filter, multiline=False, valign='middle' )
+
+        fil = FlatTextInput( 
+            text=self.grid.row_filters_names[column] if column in self.grid.row_filters_names.keys() else '',\
+            hint_text=self.hint_filter, multiline=False, valign='middle' 
+        )
         lbl = Label( 
             text=self.grid.headers[column],\
             color=[0,0,0,.8], halign='left', valign='middle' 
