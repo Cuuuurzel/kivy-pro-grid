@@ -245,7 +245,8 @@ class ProGrid( BoxLayout ) :
 
         for column in self.columns :
             lbl = GridLabel( 
-                text=line[column], color=self.text_color, \
+                text=line[column] if column in line.keys() else '',\
+                color=self.text_color, \
                 font_size=self.content_font_size, \
                 **args
             )
@@ -263,15 +264,16 @@ class ProGrid( BoxLayout ) :
         if len( data ) > 0 :
 
             #Data used by customizator
-            self._all_columns = sorted( data[0].keys() )
+            self._all_columns = sorted( self.headers.keys() )#sorted( data[0].keys() )
 
             #Filtering
-            temp = filter( self._validate_line, data )
+            self._data = filter( self._validate_line, data )
 
             #Sorting
-            field, mode = self.row_sorting[0]
-            reverse = False if mode == 'asc' else True
-            self._data = sorted( temp, key=lambda o: o[field], reverse=reverse )
+            if len( self.row_sorting ) > 0 :
+                field, mode = self.row_sorting[0]
+                reverse = False if mode == 'asc' else True
+                self._data = sorted( temp, key=lambda o: o[field], reverse=reverse )
          
     """
     Will apply given filters.
@@ -302,6 +304,7 @@ class GridLabel( Label ) :
     background_color = ListProperty( [ .95, .95, .95, 1 ] )
 
     def __init__( self, **kargs ) : 
+        kargs['text'] = str( kargs['text'] )
         super( GridLabel, self ).__init__( **kargs )
 
 
@@ -351,8 +354,6 @@ Please quote ( '' ) any text in your filters.""" )
     popup = ObjectProperty( None )
 
     def __init__( self, **kargs ) :
-        print( icon_settings_32 )
-        print( '/home/curzel/Desktop/dev/progrid/images' )
         super( ProGridCustomizator, self ).__init__( 
             icon=icon_settings_32, **kargs 
         )
@@ -460,7 +461,10 @@ Please quote ( '' ) any text in your filters.""" )
         row = BoxLayout( orientation='horizontal', size_hint=(1,None), height=30 )
         chk = CheckBox( active=( column in self.grid.columns ) )
         fil = FlatTextInput( text='', hint_text=self.hint_filter, multiline=False, valign='middle' )
-        lbl = Label( text=self.grid.headers[column], color=[0,0,0,.8], halign='left', valign='middle' )
+        lbl = Label( 
+            text=self.grid.headers[column],\
+            color=[0,0,0,.8], halign='left', valign='middle' 
+        )
         lbl.bind( size=lbl.setter('text_size') )
    
         row.add_widget( chk )
@@ -477,7 +481,8 @@ Please quote ( '' ) any text in your filters.""" )
 
         self._columns = {}
         
-        for column in self.grid._all_columns :
+        for column in sorted( self.grid.headers.keys() ) :
+            
             row, chk, lbl, fil = self._build_content_row( column ) 
             content.add_widget( row )
             self._columns[ column ] = chk, lbl, fil
