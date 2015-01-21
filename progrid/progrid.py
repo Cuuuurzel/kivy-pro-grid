@@ -27,7 +27,10 @@ import time
 from flatui.flatui import FlatButton, FlatTextInput, FloatingAction
 from flatui.popups import AlertPopup, FlatPopup, OkButtonPopup
 
-Builder.load_file( 'progrid.kv' )
+import pkg_resources
+
+path = pkg_resources.resource_filename( __name__, 'progrid.kv' )
+Builder.load_file( path )
 
 """
 Inspired by DevExpress CxGrid...
@@ -70,6 +73,11 @@ class ProGrid( BoxLayout ) :
     Dictionary containing functions used to filter data.
     """
     row_filters = DictProperty( {} )
+
+    """
+    Dictionary containing the strings the user will read if costumizing the grid,
+    """
+    row_filters_names = DictProperty( {} )
 
     """
     List of sort rules to use.

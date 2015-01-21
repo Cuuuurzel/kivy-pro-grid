@@ -23,6 +23,7 @@ class TestApp( App ) :
         headers     = { 'name':'Nome', 'surname':'Cognome', 'birth':'Data di nascita' }
         columns     = [ 'surname', 'name', 'birth' ]
         row_filters = { 'name':lambda n: n.startswith('M') } 
+        row_filters_names = { 'name':"Nomi che iniziano con la 'M'" } 
         row_sorting = [ ['surname','asc'] ]
     
         grid = ProGrid( 
