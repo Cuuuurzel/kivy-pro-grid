@@ -9,7 +9,7 @@ from kivy.uix.floatlayout import FloatLayout
 from random import choice, randint 
 
 #from forms.recordform import RecordForm
-from progrid import ProGrid, ProGridCustomizator
+from progrid.progrid import ProGrid, ProGridCustomizator
 
 class TestApp( App ) :
     

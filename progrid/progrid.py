@@ -27,10 +27,14 @@ import time
 from flatui.flatui import FlatButton, FlatTextInput, FloatingAction
 from flatui.popups import AlertPopup, FlatPopup, OkButtonPopup
 
-import pkg_resources
+#KV Lang files
+from pkg_resources import resource_filename
 
-path = pkg_resources.resource_filename( __name__, 'progrid.kv' )
+path = resource_filename( __name__, 'progrid.kv' )
 Builder.load_file( path )
+
+#Icons
+icon_settings_32 = resource_filename( __name__, 'images/settings-32.png' )
 
 """
 Inspired by DevExpress CxGrid...
@@ -347,7 +351,11 @@ Please quote ( '' ) any text in your filters.""" )
     popup = ObjectProperty( None )
 
     def __init__( self, **kargs ) :
-        super( ProGridCustomizator, self ).__init__( **kargs )
+        print( icon_settings_32 )
+        print( '/home/curzel/Desktop/dev/progrid/images' )
+        super( ProGridCustomizator, self ).__init__( 
+            icon=icon_settings_32, **kargs 
+        )
         self._help_popup = OkButtonPopup( text=self.filters_help )
         if not 'grid' in kargs.keys() :
             raise ValueError( 'You need to provide a pointer to your grid using the "grid" parameter.' )
