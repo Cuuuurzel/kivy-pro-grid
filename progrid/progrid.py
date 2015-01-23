@@ -244,6 +244,7 @@ class ProGrid( BoxLayout ) :
             lbl = BindedLabel( 
                 text=line[column] if column in line.keys() else '',\
                 color=self.text_color, \
+                background_color=[ .95, .95, .95, 1 ], \
                 font_size=self.content_font_size, \
                 **args
             )
