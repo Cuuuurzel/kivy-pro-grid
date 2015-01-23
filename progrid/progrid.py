@@ -24,7 +24,7 @@ from kivy.uix.textinput import TextInput
 from random import random
 import time
 
-from flatui.flatui import FlatButton, FlatTextInput, FloatingAction
+from flatui.flatui import FlatButton, FlatTextInput, FloatingAction, BindedLabel
 from flatui.popups import AlertPopup, FlatPopup, OkButtonPopup
 
 #KV Lang files
@@ -64,7 +64,7 @@ class ProGrid( BoxLayout ) :
     data = ListProperty( [] )
 
     """
-    GridLabel for any column.
+    Label for any column.
     """
     headers = DictProperty( {} )
 
@@ -156,9 +156,6 @@ class ProGrid( BoxLayout ) :
 
         super( ProGrid, self ).__init__( **kargs )
 
-        #Basic setup
-        ...    
-        
         #Bindings...
         self.bind( data=self._render )
         self.bind( columns=self._render )
@@ -244,7 +241,7 @@ class ProGrid( BoxLayout ) :
         args.update( padding_y )
 
         for column in self.columns :
-            lbl = GridLabel( 
+            lbl = BindedLabel( 
                 text=line[column] if column in line.keys() else '',\
                 color=self.text_color, \
                 font_size=self.content_font_size, \
@@ -273,7 +270,7 @@ class ProGrid( BoxLayout ) :
             if len( self.row_sorting ) > 0 :
                 field, mode = self.row_sorting[0]
                 reverse = False if mode == 'asc' else True
-                self._data = sorted( temp, key=lambda o: o[field], reverse=reverse )
+                self._data = sorted( self._data, key=lambda o: o[field], reverse=reverse )
          
     """
     Will apply given filters.
@@ -294,18 +291,6 @@ You can bypass this exception by changing the value of the data_len_limit proper
 Be aware of performance issues.
 """ % ( self.data_len_limit, n )
         raise ValueError( msg )
-
-
-"""
-Label with background color.
-"""
-class GridLabel( Label ) :
-
-    background_color = ListProperty( [ .95, .95, .95, 1 ] )
-
-    def __init__( self, **kargs ) : 
-        kargs['text'] = str( kargs['text'] )
-        super( GridLabel, self ).__init__( **kargs )
 
 
 """
@@ -425,7 +410,7 @@ Please quote ( '' ) any text in your filters.""" )
     """
     def customize( self ) :
         self.popup = FlatPopup( 
-            size_hint=(.8,.8), \
+            size_hint=(.7,.7), \
             title=self.popup_title, \
             title_size=20, \
             title_color=[0,0,0,.8], \
@@ -438,7 +423,7 @@ Please quote ( '' ) any text in your filters.""" )
     """
     def _build_footer( self ) :
 
-        footer = BoxLayout( orientation='horizontal', spacing=10, size_hint=(1,.2) )        
+        footer = BoxLayout( orientation='horizontal', spacing=10, size_hint=(1,None), height=35 )        
         args = { 'size_hint':(.2,1), 'background_color':[0,.59,.53,1], 'background_color_down':[0,.41,.36,1] }
         
         txt = '[ref=main][b]       ?       [/b][/ref]'
@@ -483,8 +468,10 @@ Please quote ( '' ) any text in your filters.""" )
     Will build popup content.
     """
     def _build_content( self ) :
-        x = BoxLayout( orientation='vertical', padding=[5,5,5,10])
-        content = BoxLayout( orientation='vertical', margin=10 )
+        s = ScrollView()
+        x = BoxLayout( orientation='vertical', padding=[5,5,5,10] )
+        content = GridLayout( cols=1, size_hint=(1,None) )
+        content.height = 0
 
         self._columns = {}
         
@@ -492,16 +479,14 @@ Please quote ( '' ) any text in your filters.""" )
             
             row, chk, lbl, fil = self._build_content_row( column ) 
             content.add_widget( row )
+            content.height += row.height
             self._columns[ column ] = chk, lbl, fil
-
-        x.add_widget( content )
-        x.add_widget( BoxLayout( size_hint=(1,1) )   )
+        
+        s.add_widget( content )
+        x.add_widget( s )
         x.add_widget( self._build_footer() )
 
         return x
-
-
-
 
 
 
