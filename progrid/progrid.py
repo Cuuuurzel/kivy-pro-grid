@@ -209,7 +209,7 @@ class ProGrid( BoxLayout ) :
         args.update( padding_y )
 
         for column in self.columns :
-            lbl = Label( 
+            lbl = ColumnHeader( 
                 text=self.headers[column], color=self.text_color, \
                 font_size=self.header_font_size, \
                 **args
@@ -489,8 +489,13 @@ Please quote ( '' ) any text in your filters.""" )
 
         return x
 
-
-
+"""
+Resizable widget
+"""
+class ColumnHeader( BindedLabel ) :
+    
+    def __init__( self, **kargs ) :
+        super( ColumnHeader, self ).__init__( **kargs )
 
 
 
