@@ -1,11 +1,10 @@
 import sys
 sys.path.append( '..' )
 
-import inspect
-import json
-
+from functools import partial
 from kivy.adapters.dictadapter import DictAdapter
 from kivy.adapters.listadapter import ListAdapter
+from kivy.clock import Clock
 from kivy.graphics import Color, Rectangle
 from kivy.lang import Builder
 from kivy.properties import *
@@ -21,10 +20,8 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.textinput import TextInput
 
-from random import random
-import time
-
-from flatui.flatui import FlatButton, FlatTextInput, FloatingAction, BindedLabel
+from flatui.flatui import FlatButton, FlatTextInput, FloatingAction
+from flatui.labels import BindedLabel
 from flatui.popups import AlertPopup, FlatPopup, OkButtonPopup
 
 #KV Lang files
@@ -51,7 +48,6 @@ Inspired by DevExpress CxGrid...
 -- Issues --
 
     - Still damn slow
-    - Cannot show more than ~2500 rows due to performance
     - Rows grouping not yet implemented
     - Not saving user configuration
 
@@ -109,6 +105,7 @@ class ProGrid( BoxLayout ) :
     Content properties...
     """
     content = ObjectProperty( None )
+    selection_color = ListProperty( [ .6, .6, 1, 1 ] )
     content_background_color = ListProperty( [ .95, .95, .95, 1 ] )
     content_font_name = StringProperty( '' ) #'font/Roboto-Light.ttf' )
     content_font_size = NumericProperty( 15 )
@@ -122,18 +119,18 @@ class ProGrid( BoxLayout ) :
     header = ObjectProperty( None )
     header_background_color = ListProperty( [ .8, .8, .8, 1 ] )
     header_font_name = StringProperty( '' ) #'font/Roboto-Medium.ttf' )
-    header_font_size = NumericProperty( 16 )
-    header_height = NumericProperty( 40 )
-    header_align = OptionProperty( 'left', options=['left','center','right'] )
+    header_font_size = NumericProperty( 17 )
+    header_height = NumericProperty( 50 )
+    header_align = OptionProperty( 'center', options=['left','center','right'] )
     header_padding_x = NumericProperty( None )
-    header_padding_y = NumericProperty( None )
+    header_padding_y = NumericProperty( 0 )# -9 )
 
     """
     Footer properties...
     """
     footer = ObjectProperty( None )
     footer_background_color = ListProperty( [ .8, .8, .8, 1 ] )
-    footer_height = NumericProperty( 15 )
+    footer_height = NumericProperty( 20 )
     footer_align = OptionProperty( 'left', options=['left','center','right'] )
     footer_padding_x = NumericProperty( None )
     footer_padding_y = NumericProperty( None )
@@ -147,9 +144,17 @@ class ProGrid( BoxLayout ) :
     row_height = NumericProperty( 28 )
 
     """
+    Touch callbacks
+    """
+    on_double_tap = ObjectProperty( None )
+    on_long_press = ObjectProperty( None )
+    on_select = ObjectProperty( None )
+
+    """
     Private stuffs...
     """
     _data = ListProperty( [] )
+    _rows = ListProperty( [] ) 
 
 
     def __init__( self, **kargs ) :
@@ -181,8 +186,8 @@ class ProGrid( BoxLayout ) :
         self.content.clear_widgets()
         self.content.height = 0
 
-        for line in self._data :
-            row = self._gen_row( line )
+        for n, line in enumerate( self._data ) :
+            row = self._gen_row( line, n )
             self.content.add_widget( row )
             self.content.height += row.height
 
@@ -192,27 +197,49 @@ class ProGrid( BoxLayout ) :
         ...
         
     """
+    Called whenever a row is selected.
+    """
+    def on_row_select( self, n ) :
+        if self.on_select : self.on_select( n, self._data[n] )
+        
+    """
+    Called whenever a row is double tapped.
+    """
+    def on_row_double_tap( self, n ) :
+        if self.on_double_tap : self.on_double_tap( n, self._data[n] )
+        
+    """
+    Called whenever a row is pressed of a long time.
+    """
+    def on_row_long_press( self, n ) :
+        if self.on_long_press : self.on_long_press( n, self._data[n] )
+
+    """
     Will add columns names to header.
     """
     def _gen_header( self ) :
 
         self.header.clear_widgets()
         font_name = {'font_name':self.header_font_name} if self.header_font_name else {}
-        txt_align = {'halign'   :self.header_align    } if self.header_align     else {}
+        font_size = {'font_size':self.header_font_size} if self.header_font_size else {}
+        h_align   = {'halign'   :self.header_align    } if self.header_align     else {}
+        v_align   = {'valign'   :'middle'             }
+        color     = {'color'    :self.text_color      } if self.text_color       else {}
         padding_x = {'padding_x':self.header_padding_x} if self.header_padding_x else {}
-        padding_y = {'padding_y':self.header_padding_x} if self.header_padding_x else {}
+        padding_y = {'padding_y':self.header_padding_y} if self.header_padding_y else {}
 
         args = {}
-        args.update( txt_align )
         args.update( font_name )
+        args.update( font_size )
+        args.update( h_align   )
+        args.update( v_align   )
+        args.update( color     )
         args.update( padding_x )
         args.update( padding_y )
 
         for column in self.columns :
             lbl = ColumnHeader( 
-                text=self.headers[column], color=self.text_color, \
-                font_size=self.header_font_size, \
-                **args
+                text=self.headers[column], **args
             )
             self.header.add_widget( lbl )
 
@@ -226,11 +253,11 @@ class ProGrid( BoxLayout ) :
     """
     Will generate a single row.
     """
-    def _gen_row( self, line ) :
-        b = BoxLayout( height=self.row_height, orientation='horizontal', spacing=1 )
+    def _gen_row( self, line, n ) :
+        b = RowLayout( height=self.row_height, orientation='horizontal', rowid=n, grid=self, spacing=self.grid_width )
 
         font_name = {'font_name':self.content_font_name} if self.content_font_name else {}
-        txt_align = {'halign'   :self.header_align    } if self.header_align     else {}
+        txt_align = {'halign'   :self.content_align    } if self.content_align     else {}
         padding_x = {'padding_x':self.content_padding_x} if self.content_padding_x else {}
         padding_y = {'padding_y':self.content_padding_x} if self.content_padding_x else {}
 
@@ -242,9 +269,9 @@ class ProGrid( BoxLayout ) :
 
         for column in self.columns :
             lbl = BindedLabel( 
-                text=line[column] if column in line.keys() else '',\
+                text=str( line[column] if column in line.keys() else '' ),\
                 color=self.text_color, \
-                background_color=[ .95, .95, .95, 1 ], \
+                background_color=self.content_background_color, \
                 font_size=self.content_font_size, \
                 **args
             )
@@ -299,13 +326,15 @@ Put this on your form to allow the user customize the ProGrid.
 
 Currently, three kind of filters are supported :
 
- 1) Simple text filter : 'ar' will match 'aron' and 'mario'.
- 2) Expressions starting with Python comparison operators.
-    Those are checked and evalued using eval.
-    For example, '> 14' or '== 0'
- 3) Expressions containing '$VAL'.
-    Those are checked and evalued using eval.
-    For example, '$VAL.startswith( "M" )'.
+  1) Simple text filter : 'ar' will match 'aron' and 'mario'.
+
+  2) Expressions starting with Python comparison operators.
+  Those are checked and evalued using eval.
+  For example, '> 14' or '== 0'
+
+  3) Expressions containing '$VAL'.
+  Those are checked and evalued using eval.
+  For example, '$VAL.startswith( "M" )'.
 """
 class ProGridCustomizator( FloatingAction ) :
     
@@ -321,11 +350,13 @@ Press on '?' for more information.
     filters_help = StringProperty( """
 Three kind of filters are supported :
 
- 1) Simple text filter, for example, 'ar' will match 'aron' and 'mario'.
- 2) Expressions starting comparison operators ( <, <=, =>, >, == and != ).
-    For example, '> 14' or '== 0'.
- 3) Expressions containing '$VAL'.
-    For example, '$VAL == "M"'.
+  1) Simple text filter, for example, 'ar' will match 'aron' and 'mario'.
+
+  2) Expressions starting comparison operators ( <, <=, =>, >, == and != ).
+  For example, '> 14' or '== 0'.
+
+  3) Expressions containing '$VAL'.
+  For example, '$VAL == "M"'.
 
 Please quote ( '' ) any text in your filters.""" )
 
@@ -490,17 +521,45 @@ Please quote ( '' ) any text in your filters.""" )
         return x
 
 """
-Resizable widget
+Resizable widget.
 """
 class ColumnHeader( BindedLabel ) :
-    
     def __init__( self, **kargs ) :
         super( ColumnHeader, self ).__init__( **kargs )
 
+"""
+Row layout, with tap, double tap and long press callback.
+"""
+class RowLayout( BoxLayout ) :
+    
+    rowid = NumericProperty( None )
+    grid = ObjectProperty( None )
 
+    def __init__( self, **kargs ) :
+        super( RowLayout, self ).__init__( **kargs )
+        
+    def _create_clock( self, touch ) :
+        Clock.schedule_once( self.on_long_press, .5 )
 
+    def _delete_clock( self, touch ) :
+        Clock.unschedule( self.on_long_press )
 
+    def on_long_press( self, time ) :
+        if self.grid : self.grid.on_row_long_press( self.rowid )
 
+    def on_touch_down( self, touch ) :
+        if touch.is_double_tap : return self.on_double_tap( touch )
+        self._create_clock( touch )
+        return True
+
+    def on_touch_up( self, touch ) :
+        self._delete_clock( touch )
+        if self.grid : self.grid.on_row_select( self.rowid )
+        return True
+
+    def on_double_tap( self, touch ) :
+        if self.grid : self.grid.on_row_double_tap( self.rowid )
+        return True
 
 
 
