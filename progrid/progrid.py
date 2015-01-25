@@ -256,23 +256,28 @@ class ProGrid( BoxLayout ) :
     def _gen_row( self, line, n ) :
         b = RowLayout( height=self.row_height, orientation='horizontal', rowid=n, grid=self, spacing=self.grid_width )
 
-        font_name = {'font_name':self.content_font_name} if self.content_font_name else {}
-        txt_align = {'halign'   :self.content_align    } if self.content_align     else {}
-        padding_x = {'padding_x':self.content_padding_x} if self.content_padding_x else {}
-        padding_y = {'padding_y':self.content_padding_x} if self.content_padding_x else {}
+        font_name = {'font_name'       :self.content_font_name} if self.content_font_name else {}
+        font_size = {'font_size'       :self.content_font_size} if self.content_font_size else {}
+        h_align   = {'halign'          :self.content_align    } if self.content_align     else {}
+        v_align   = {'valign'          :'middle'}
+        color     = {'color'           :self.text_color       } if self.text_color        else {}
+        b_color   = {'background_color':self.background_color } if self.background_color  else {}
+        padding_x = {'padding_x'       :self.content_padding_x} if self.content_padding_x else {}
+        padding_y = {'padding_y'       :self.content_padding_x} if self.content_padding_x else {}
 
         args = {}
-        args.update( txt_align )
+        args.update( v_align   )
+        args.update( h_align   )
         args.update( font_name )
+        args.update( font_size )
+        args.update( color     )
+        args.update( b_color   )
         args.update( padding_x )
         args.update( padding_y )
 
         for column in self.columns :
             lbl = BindedLabel( 
-                text=str( line[column] if column in line.keys() else '' ),\
-                color=self.text_color, \
-                background_color=self.content_background_color, \
-                font_size=self.content_font_size, \
+                text=str( line[column] if column in line.keys() else '' ), \
                 **args
             )
             b.add_widget( lbl )
@@ -560,7 +565,6 @@ class RowLayout( BoxLayout ) :
     def on_double_tap( self, touch ) :
         if self.grid : self.grid.on_row_double_tap( self.rowid )
         return True
-
 
 
 
