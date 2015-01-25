@@ -220,22 +220,7 @@ class ProGrid( BoxLayout ) :
     def _gen_header( self ) :
 
         self.header.clear_widgets()
-        font_name = {'font_name':self.header_font_name} if self.header_font_name else {}
-        font_size = {'font_size':self.header_font_size} if self.header_font_size else {}
-        h_align   = {'halign'   :self.header_align    } if self.header_align     else {}
-        v_align   = {'valign'   :'middle'             }
-        color     = {'color'    :self.text_color      } if self.text_color       else {}
-        padding_x = {'padding_x':self.header_padding_x} if self.header_padding_x else {}
-        padding_y = {'padding_y':self.header_padding_y} if self.header_padding_y else {}
-
-        args = {}
-        args.update( font_name )
-        args.update( font_size )
-        args.update( h_align   )
-        args.update( v_align   )
-        args.update( color     )
-        args.update( padding_x )
-        args.update( padding_y )
+        args = self._build_header_args()
 
         for column in self.columns :
             lbl = ColumnHeader( 
@@ -255,27 +240,10 @@ class ProGrid( BoxLayout ) :
     """
     def _gen_row( self, line, n ) :
         b = RowLayout( height=self.row_height, orientation='horizontal', rowid=n, grid=self, spacing=self.grid_width )
-
-        font_name = {'font_name'       :self.content_font_name} if self.content_font_name else {}
-        font_size = {'font_size'       :self.content_font_size} if self.content_font_size else {}
-        h_align   = {'halign'          :self.content_align    } if self.content_align     else {}
-        v_align   = {'valign'          :'middle'}
-        color     = {'color'           :self.text_color       } if self.text_color        else {}
-        b_color   = {'background_color':self.background_color } if self.background_color  else {}
-        padding_x = {'padding_x'       :self.content_padding_x} if self.content_padding_x else {}
-        padding_y = {'padding_y'       :self.content_padding_x} if self.content_padding_x else {}
-
-        args = {}
-        args.update( v_align   )
-        args.update( h_align   )
-        args.update( font_name )
-        args.update( font_size )
-        args.update( color     )
-        args.update( b_color   )
-        args.update( padding_x )
-        args.update( padding_y )
+        args = self._build_content_args()
 
         for column in self.columns :
+            print( self.columns )
             lbl = BindedLabel( 
                 text=str( line[column] if column in line.keys() else '' ), \
                 **args
@@ -324,6 +292,41 @@ You can bypass this exception by changing the value of the data_len_limit proper
 Be aware of performance issues.
 """ % ( self.data_len_limit, n )
         raise ValueError( msg )
+    
+    """
+    Returns a single dictionary using dict.update().
+    """
+    def _build_dict( self, *args ) :
+        result = {}
+        for d in args : result.update( d )
+        return result
+
+    """
+    Args passed down to headers labels.
+    """
+    def _build_header_args( self ) :
+        font_name = {'font_name':self.header_font_name} if self.header_font_name else {}
+        font_size = {'font_size':self.header_font_size} if self.header_font_size else {}
+        h_align   = {'halign'   :self.header_align    } if self.header_align     else {}
+        v_align   = {'valign'   :'middle'             }
+        color     = {'color'    :self.text_color      } if self.text_color       else {}
+        padding_x = {'padding_x':self.header_padding_x} if self.header_padding_x else {}
+        padding_y = {'padding_y':self.header_padding_y} if self.header_padding_y else {}
+        return self._build_dict( v_align, h_align, font_name, font_size, color, padding_x, padding_y )
+
+    """
+    Args passed down to content labels.
+    """
+    def _build_content_args( self ) :        
+        v_align   = {'valign'          :'middle'}
+        font_name = {'font_name'       :self.content_font_name} if self.content_font_name else {}
+        font_size = {'font_size'       :self.content_font_size} if self.content_font_size else {}
+        h_align   = {'halign'          :self.content_align    } if self.content_align     else {}
+        color     = {'color'           :self.text_color       } if self.text_color        else {}
+        padding_x = {'padding_x'       :self.content_padding_x} if self.content_padding_x else {}
+        padding_y = {'padding_y'       :self.content_padding_x} if self.content_padding_x else {}
+        b_color   = {'background_color':self.content_background_color } if self.content_background_color else {}
+        return self._build_dict( v_align, h_align, font_name, font_size, color, b_color, padding_x, padding_y )
 
 
 """
