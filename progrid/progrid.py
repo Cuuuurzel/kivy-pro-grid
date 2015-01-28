@@ -243,7 +243,6 @@ class ProGrid( BoxLayout ) :
         args = self._build_content_args()
 
         for column in self.columns :
-            print( self.columns )
             lbl = BindedLabel( 
                 text=str( line[column] if column in line.keys() else '' ), \
                 **args
@@ -318,14 +317,14 @@ Be aware of performance issues.
     Args passed down to content labels.
     """
     def _build_content_args( self ) :        
-        v_align   = {'valign'          :'middle'}
-        font_name = {'font_name'       :self.content_font_name} if self.content_font_name else {}
-        font_size = {'font_size'       :self.content_font_size} if self.content_font_size else {}
-        h_align   = {'halign'          :self.content_align    } if self.content_align     else {}
-        color     = {'color'           :self.text_color       } if self.text_color        else {}
-        padding_x = {'padding_x'       :self.content_padding_x} if self.content_padding_x else {}
-        padding_y = {'padding_y'       :self.content_padding_x} if self.content_padding_x else {}
-        b_color   = {'background_color':self.content_background_color } if self.content_background_color else {}
+        v_align   = {'valign'    :'middle'}
+        font_name = {'font_name' :self.content_font_name} if self.content_font_name else {}
+        font_size = {'font_size' :self.content_font_size} if self.content_font_size else {}
+        h_align   = {'halign'    :self.content_align    } if self.content_align     else {}
+        color     = {'color'     :self.text_color       } if self.text_color        else {}
+        padding_x = {'padding_x' :self.content_padding_x} if self.content_padding_x else {}
+        padding_y = {'padding_y' :self.content_padding_x} if self.content_padding_x else {}
+        b_color   = {'fill_color':self.content_background_color } if self.content_background_color else {}
         return self._build_dict( v_align, h_align, font_name, font_size, color, b_color, padding_x, padding_y )
 
 
