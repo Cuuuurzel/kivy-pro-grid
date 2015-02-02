@@ -100,7 +100,7 @@ class ProGrid( BoxLayout ) :
     If you need to bypass this limit, just update this value.
     Default is 2000.
     """
-    data_len_limit = NumericProperty( 2000 )
+    data_len_limit = NumericProperty( 1000 )
  
     """
     Content properties...
@@ -111,7 +111,7 @@ class ProGrid( BoxLayout ) :
     content_font_name = StringProperty( '' ) #'font/Roboto-Light.ttf' )
     content_font_size = NumericProperty( dp(15) )
     content_align = OptionProperty( 'left', options=['left','center','right'] )
-    content_padding_x = NumericProperty( dp(-5) if sys.version_info[0]>2 else dp(5) )
+    content_padding_x = NumericProperty( dp(-5) if sys.version_info[0]>2 else dp(-2) )
     content_padding_y = NumericProperty( None )
 
     """
