@@ -111,7 +111,7 @@ class ProGrid( BoxLayout ) :
     content_font_name = StringProperty( '' ) #'font/Roboto-Light.ttf' )
     content_font_size = NumericProperty( 15 )
     content_align = OptionProperty( 'left', options=['left','center','right'] )
-    content_padding_x = NumericProperty( -5 )
+    content_padding_x = NumericProperty( -5 if sys.version_info[0]>2 else 5 )
     content_padding_y = NumericProperty( None )
 
     """
@@ -243,7 +243,7 @@ class ProGrid( BoxLayout ) :
     This view will allow to quickly remove filters.
     """
     def _gen_footer( self ) :
-        ...
+        pass
 
     """
     Will generate a single row.
