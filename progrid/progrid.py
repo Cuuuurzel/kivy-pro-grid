@@ -21,7 +21,7 @@ from kivy.uix.stacklayout import StackLayout
 from kivy.uix.textinput import TextInput
 
 from flatui.flatui import FlatButton, FlatTextInput, FloatingAction
-from flatui.labels import BindedLabel
+from flatui.labels import BindedLabel, ResizeableLabel
 from flatui.popups import AlertPopup, FlatPopup, OkButtonPopup
 
 #KV Lang files
@@ -96,10 +96,11 @@ class ProGrid( BoxLayout ) :
     """
     There still are performance issues...
     If you feed more than this amount of rows, a TooMuchDataException will be thrown.
-    If you still want to bypass this limit, just update this value.
+    If you need to bypass this limit, just update this value.
     Default is 2000.
     """
     data_len_limit = NumericProperty( 2000 )
+
  
     """
     Content properties...
@@ -161,6 +162,8 @@ class ProGrid( BoxLayout ) :
 
         super( ProGrid, self ).__init__( **kargs )
 
+        self.___grid = {}
+
         #Bindings...
         self.bind( data=self._render )
         self.bind( columns=self._render )
@@ -181,6 +184,12 @@ class ProGrid( BoxLayout ) :
             self._raise_too_much_data( len( self.data ) )
 
         self._setup_data( self.data )
+        
+        for col in self.columns : self.___grid[col] = []
+
+        #Header & footer
+        self._gen_header()
+        self._gen_footer()
 
         #Content
         self.content.clear_widgets()
@@ -190,11 +199,6 @@ class ProGrid( BoxLayout ) :
             row = self._gen_row( line, n )
             self.content.add_widget( row )
             self.content.height += row.height
-
-        #Header & footer
-        self._gen_header()
-        self._gen_footer()
-        ...
         
     """
     Called whenever a row is selected.
@@ -224,9 +228,15 @@ class ProGrid( BoxLayout ) :
 
         for column in self.columns :
             lbl = ColumnHeader( 
-                text=self.headers[column], **args
+                text=self.headers[column],
+                root_layout=self, 
+                hover_color=[0,0,1,.5],
+                meta=column,
+                grid=self,
+                **args
             )
             self.header.add_widget( lbl )
+            self.___grid[column].append( lbl )
 
     """
     Will prepare footer layout.
@@ -248,6 +258,7 @@ class ProGrid( BoxLayout ) :
                 **args
             )
             b.add_widget( lbl )
+            self.___grid[column].append( lbl )
 
         return b
 
@@ -257,15 +268,11 @@ class ProGrid( BoxLayout ) :
     def _setup_data( self, data ) :
         
         self._data = []
-
         if len( data ) > 0 :
-
             #Data used by customizator
             self._all_columns = sorted( self.headers.keys() )#sorted( data[0].keys() )
-
             #Filtering
             self._data = filter( self._validate_line, data )
-
             #Sorting
             if len( self.row_sorting ) > 0 :
                 field, mode = self.row_sorting[0]
@@ -327,6 +334,15 @@ Be aware of performance issues.
         b_color   = {'fill_color':self.content_background_color } if self.content_background_color else {}
         return self._build_dict( v_align, h_align, font_name, font_size, color, b_color, padding_x, padding_y )
 
+    """
+    Called whenever a column is resized.
+    """
+    def on_column_resize( self, oldsize, newsize, column ) :
+        print( oldsize, newsize, column )
+        newwidth = newsize[0]
+        for widget in self.___grid[column] :
+            widget.width = newwidth
+            widget.size_hint[0] = None
 
 """
 Put this on your form to allow the user customize the ProGrid.
@@ -530,9 +546,13 @@ Please quote ( '' ) any text in your filters.""" )
 """
 Resizable widget.
 """
-class ColumnHeader( BindedLabel ) :
+class ColumnHeader( ResizeableLabel ) :
+
+    grid = ObjectProperty( None )
+
     def __init__( self, **kargs ) :
         super( ColumnHeader, self ).__init__( **kargs )
+        self.on_new_size = self.grid.on_column_resize
 
 """
 Row layout, with tap, double tap and long press callback.
