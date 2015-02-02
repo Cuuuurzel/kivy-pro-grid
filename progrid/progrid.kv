@@ -3,12 +3,12 @@
 #==============================================================================
 <ProGridCustomizator>:
 #==============================================================================
-    diameter: 70
+    diameter: dp(70)
     size_hint: None, None
     width: self.diameter
     height: self.diameter
     pos: self.grid.width-1.2*self.width, self.height/2
-    font_size: 24
+    font_size: dp(24)
     background_color: ( 1, .1, .1, 1 )
     background_color_down: ( .9, .1, .1, 1 )
     color: [1,1,1,1]
@@ -47,13 +47,13 @@
 
     ScrollView:
         size_hint: ( 1, 1 )
-        bar_width: 7
+        bar_width: dp(7)
         
         GridLayout:
             id: content
             size_hint: 1, None
             cols: 1
-            spacing: 1
+            spacing: dp(1)
 
     BoxLayout:
         id: footer

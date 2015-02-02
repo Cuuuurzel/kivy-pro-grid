@@ -7,6 +7,7 @@ from kivy.adapters.listadapter import ListAdapter
 from kivy.clock import Clock
 from kivy.graphics import Color, Rectangle
 from kivy.lang import Builder
+from kivy.metrics import dp
 from kivy.properties import *
 from kivy.uix.button import Button
 from kivy.uix.checkbox import CheckBox
@@ -100,7 +101,6 @@ class ProGrid( BoxLayout ) :
     Default is 2000.
     """
     data_len_limit = NumericProperty( 2000 )
-
  
     """
     Content properties...
@@ -109,9 +109,9 @@ class ProGrid( BoxLayout ) :
     selection_color = ListProperty( [ .6, .6, 1, 1 ] )
     content_background_color = ListProperty( [ .95, .95, .95, 1 ] )
     content_font_name = StringProperty( '' ) #'font/Roboto-Light.ttf' )
-    content_font_size = NumericProperty( 15 )
+    content_font_size = NumericProperty( dp(15) )
     content_align = OptionProperty( 'left', options=['left','center','right'] )
-    content_padding_x = NumericProperty( -5 if sys.version_info[0]>2 else 5 )
+    content_padding_x = NumericProperty( dp(-5) if sys.version_info[0]>2 else dp(5) )
     content_padding_y = NumericProperty( None )
 
     """
@@ -120,8 +120,8 @@ class ProGrid( BoxLayout ) :
     header = ObjectProperty( None )
     header_background_color = ListProperty( [ .8, .8, .8, 1 ] )
     header_font_name = StringProperty( '' ) #'font/Roboto-Medium.ttf' )
-    header_font_size = NumericProperty( 17 )
-    header_height = NumericProperty( 50 )
+    header_font_size = NumericProperty( dp(17) )
+    header_height = NumericProperty( dp(50) )
     header_align = OptionProperty( 'center', options=['left','center','right'] )
     header_padding_x = NumericProperty( None )
     header_padding_y = NumericProperty( 0 )# -9 )
@@ -131,7 +131,7 @@ class ProGrid( BoxLayout ) :
     """
     footer = ObjectProperty( None )
     footer_background_color = ListProperty( [ .8, .8, .8, 1 ] )
-    footer_height = NumericProperty( 20 )
+    footer_height = NumericProperty( dp(20) )
     footer_align = OptionProperty( 'left', options=['left','center','right'] )
     footer_padding_x = NumericProperty( None )
     footer_padding_y = NumericProperty( None )
@@ -141,8 +141,8 @@ class ProGrid( BoxLayout ) :
     """
     text_color = ListProperty( [ 0, 0, 0, .9 ] )
     grid_color = ListProperty( [ .8, .8, .8, 1 ] )
-    grid_width = NumericProperty( 1 )
-    row_height = NumericProperty( 28 )
+    grid_width = NumericProperty( dp(1) )
+    row_height = NumericProperty( dp(28) )
 
     """
     Touch callbacks
@@ -161,7 +161,6 @@ class ProGrid( BoxLayout ) :
     def __init__( self, **kargs ) :
 
         super( ProGrid, self ).__init__( **kargs )
-
         self.___grid = {}
 
         #Bindings...
@@ -467,7 +466,7 @@ Please quote ( '' ) any text in your filters.""" )
         self.popup = FlatPopup( 
             size_hint=(.7,.7), \
             title=self.popup_title, \
-            title_size=20, \
+            title_size=dp(20), \
             title_color=[0,0,0,.8], \
             content=self._build_content()
         )
@@ -478,11 +477,11 @@ Please quote ( '' ) any text in your filters.""" )
     """
     def _build_footer( self ) :
 
-        footer = BoxLayout( orientation='horizontal', spacing=10, size_hint=(1,None), height=35 )        
+        footer = BoxLayout( orientation='horizontal', spacing=dp(10), size_hint=(1,None), height=dp(35) )        
         args = { 'size_hint':(.2,1), 'background_color':[0,.59,.53,1], 'background_color_down':[0,.41,.36,1] }
         
         txt = '[ref=main][b]       ?       [/b][/ref]'
-        lbl = Label( text=txt, markup=True, color=[0,0,0,.8], font_size=18 )
+        lbl = Label( text=txt, markup=True, color=[0,0,0,.8], font_size=dp(18) )
         lbl.bind( on_ref_press=self._help_popup.open )
 
         cancel_button = FlatButton( text='X', **args )
@@ -501,7 +500,7 @@ Please quote ( '' ) any text in your filters.""" )
     """
     def _build_content_row( self, column ) :
 
-        row = BoxLayout( orientation='horizontal', size_hint=(1,None), height=30 )
+        row = BoxLayout( orientation='horizontal', size_hint=(1,None), height=dp(30) )
         chk = CheckBox( active=( column in self.grid.columns ) )
 
         fil = FlatTextInput( 
