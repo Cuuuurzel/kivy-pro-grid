@@ -39,6 +39,8 @@ class TestApp( App ) :
         self.t.add_widget( btn )
         return self.t
 
+    def on_pause( self, *args ) : return True
+
 if __name__ == '__main__':
     TestApp().run()
 
