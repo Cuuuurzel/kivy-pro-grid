@@ -1,5 +1,5 @@
 import sys
-sys.path.append( '..' )
+sys.path.append( '/home/curzel/Desktop/dev/kivy-material-ui' )
 
 from kivy.app import App
 from kivy.lang import Builder
