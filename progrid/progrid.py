@@ -111,8 +111,6 @@ class ProGrid( BoxLayout ) :
     content_font_name = StringProperty( '' ) #'font/Roboto-Light.ttf' )
     content_font_size = NumericProperty( dp(15) )
     content_align = OptionProperty( 'left', options=['left','center','right'] )
-    content_padding_x = NumericProperty( dp(-5) if sys.version_info[0]>2 else dp(-2) )
-    content_padding_y = NumericProperty( None )
 
     """
     Header properties...
@@ -123,8 +121,8 @@ class ProGrid( BoxLayout ) :
     header_font_size = NumericProperty( dp(17) )
     header_height = NumericProperty( dp(50) )
     header_align = OptionProperty( 'center', options=['left','center','right'] )
-    header_padding_x = NumericProperty( None )
-    header_padding_y = NumericProperty( 0 )# -9 )
+    #header_padding_x = NumericProperty( None )
+    #header_padding_y = NumericProperty( 0 )# -9 )
 
     """
     Footer properties...
@@ -133,15 +131,16 @@ class ProGrid( BoxLayout ) :
     footer_background_color = ListProperty( [ .8, .8, .8, 1 ] )
     footer_height = NumericProperty( dp(20) )
     footer_align = OptionProperty( 'left', options=['left','center','right'] )
-    footer_padding_x = NumericProperty( None )
-    footer_padding_y = NumericProperty( None )
+    #footer_padding_x = NumericProperty( None )
+    #footer_padding_y = NumericProperty( None )
 
     """
     Other properties of less interest...
     """
     text_color = ListProperty( [ 0, 0, 0, .9 ] )
     grid_color = ListProperty( [ .8, .8, .8, 1 ] )
-    grid_width = NumericProperty( dp(1) )
+    grid_width_h = NumericProperty( dp(1) )
+    grid_width_v = NumericProperty( dp(0) )
     row_height = NumericProperty( dp(28) )
 
     """
@@ -248,14 +247,23 @@ class ProGrid( BoxLayout ) :
     Will generate a single row.
     """
     def _gen_row( self, line, n ) :
-        b = RowLayout( height=self.row_height, orientation='horizontal', rowid=n, grid=self, spacing=self.grid_width )
+        b = RowLayout( 
+            height=self.row_height, 
+            orientation='horizontal', 
+            rowid=n, grid=self, 
+            spacing=[self.grid_width_h, self.grid_width_v],\
+#            padding=[ dp(5), 0, 0, 0 ],
+        )
         args = self._build_content_args()
-
+        
+        first_col = True
         for column in self.columns :
+            text = str( line[column] if column in line.keys() else '' )
             lbl = BindedLabel( 
-                text=str( line[column] if column in line.keys() else '' ), \
+                text=('  ' if first_col else '' ) + text, 
                 **args
             )
+            first_col = False
             b.add_widget( lbl )
             self.___grid[column].append( lbl )
 
@@ -315,9 +323,9 @@ Be aware of performance issues.
         h_align   = {'halign'   :self.header_align    } if self.header_align     else {}
         v_align   = {'valign'   :'middle'             }
         color     = {'color'    :self.text_color      } if self.text_color       else {}
-        padding_x = {'padding_x':self.header_padding_x} if self.header_padding_x else {}
-        padding_y = {'padding_y':self.header_padding_y} if self.header_padding_y else {}
-        return self._build_dict( v_align, h_align, font_name, font_size, color, padding_x, padding_y )
+#        padding_x = {'padding_x':self.header_padding_x} if self.header_padding_x else {}
+#        padding_y = {'padding_y':self.header_padding_y} if self.header_padding_y else {}
+        return self._build_dict( v_align, h_align, font_name, font_size, color )#, padding_x, padding_y )
 
     """
     Args passed down to content labels.
@@ -328,10 +336,8 @@ Be aware of performance issues.
         font_size = {'font_size' :self.content_font_size} if self.content_font_size else {}
         h_align   = {'halign'    :self.content_align    } if self.content_align     else {}
         color     = {'color'     :self.text_color       } if self.text_color        else {}
-        padding_x = {'padding_x' :self.content_padding_x} if self.content_padding_x else {}
-        padding_y = {'padding_y' :self.content_padding_x} if self.content_padding_x else {}
         b_color   = {'fill_color':self.content_background_color } if self.content_background_color else {}
-        return self._build_dict( v_align, h_align, font_name, font_size, color, b_color, padding_x, padding_y )
+        return self._build_dict( v_align, h_align, font_name, font_size, color, b_color )#, padding_x, padding_y )
 
     """
     Called whenever a column is resized.
@@ -523,7 +529,7 @@ Please quote ( '' ) any text in your filters.""" )
     """
     def _build_content( self ) :
         s = ScrollView()
-        x = BoxLayout( orientation='vertical', padding=[5,5,5,10] )
+        x = BoxLayout( orientation='vertical' )#, padding=[dp(5),dp(5),dp(5),dp(10)] )
         content = GridLayout( cols=1, size_hint=(1,None) )
         content.height = 0
 
