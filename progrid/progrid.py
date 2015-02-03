@@ -21,13 +21,12 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.textinput import TextInput
 
-from flatui.flatui import FlatButton, FlatTextInput, FloatingAction
+from flatui.flatui import FlatButton, FlatPopup, FlatTextInput, FloatingAction
 from flatui.labels import BindedLabel, ResizeableLabel
-from flatui.popups import AlertPopup, FlatPopup, OkButtonPopup
+from flatui.popups import AlertPopup, OkButtonPopup
 
 #KV Lang files
 from pkg_resources import resource_filename
-
 path = resource_filename( __name__, 'progrid.kv' )
 Builder.load_file( path )
 
