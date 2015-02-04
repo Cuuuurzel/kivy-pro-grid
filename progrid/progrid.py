@@ -106,7 +106,12 @@ class ProGrid( BoxLayout ) :
     Default is 2000.
     """
     data_len_limit = NumericProperty( 1000 )
- 
+
+    """
+    Use this to force cast on every column.
+    """ 
+    coltypes = DictProperty( {} ) 
+
     """
     Content properties...
     """
@@ -373,9 +378,10 @@ Be aware of performance issues.
     def _build_coltypes( self ) :
     
         line = self._data[0]
-        self._coltypes = {}
+        self._coltypes = self.coltypes
 
-        for column in self._all_columns :
+        for column in ( set(self.headers.keys()) - set(self.coltypes) ) :
+
             obj = line[column] if column in line.keys() else ''
             if isinstance( obj, bool ) : 
                 self._coltypes[column] = bool
