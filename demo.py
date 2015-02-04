@@ -18,10 +18,10 @@ class TestApp( App ) :
         names = 'Federico', 'Mirco', 'Mario', 'Luigi', 'Martin', 'Laura'
         surnames = 'Curzel', 'Rossi', 'Bianchi', 'Corona', 'Brambilla', 'Vettore'
         births = [ '%0.2d/%0.2d/%0.4d'%( randint(1,31), randint(1,12), randint(1940,2000) ) for i in range(0,100) ]
-
-        data = [ { 'name':choice(names), 'surname':choice(surnames), 'birth':choice(births) } for i in range(0,100) ]
-        headers     = { 'name':'Nome', 'surname':'Cognome', 'birth':'Data di nascita' }
-        columns     = [ 'surname', 'name', 'birth' ]
+        data = [ { 'name':choice(names), 'surname':choice(surnames), 'birth':choice(births), 'sample':choice([True,False]) } for i in range(0,100) ]
+        
+        headers     = { 'name':'Nome', 'surname':'Cognome', 'birth':'Data di nascita', 'sample':'Bool sample' }
+        columns     = [ 'surname', 'name', 'birth', 'sample' ]
         row_filters = { 'name':lambda n: n.startswith('M') } 
         row_filters_names = { 'name':"Nomi che iniziano con la 'M'" } 
         row_sorting = [ ['surname','asc'] ]

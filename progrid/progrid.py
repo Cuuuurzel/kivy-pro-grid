@@ -23,6 +23,7 @@ from kivy.uix.textinput import TextInput
 
 from flatui.flatui import FlatButton, FlatPopup, FlatTextInput, FloatingAction
 from flatui.labels import BindedLabel, ResizeableLabel
+from flatui.layouts import ColorBoxLayout
 from flatui.popups import AlertPopup, OkButtonPopup
 
 #KV Lang files
@@ -40,10 +41,15 @@ Inspired by DevExpress CxGrid...
 
     - Rows filtering
     - Rows sorting
-    - Rows grouping ( not yet )
     - Columns filtering 
     - Columns sorting
     - Allows end-user to customize the view    
+
+-- Future implementations --
+
+    - Allow end-user to sort rows
+    - Allow end-user to sort columns
+    - Rows grouping
 
 -- Issues --
 
@@ -118,7 +124,7 @@ class ProGrid( BoxLayout ) :
     header_background_color = ListProperty( [ .8, .8, .8, 1 ] )
     header_font_name = StringProperty( '' ) #'font/Roboto-Medium.ttf' )
     header_font_size = NumericProperty( dp(17) )
-    header_height = NumericProperty( dp(50) )
+    header_height = NumericProperty( dp(52) )
     header_align = OptionProperty( 'center', options=['left','center','right'] )
     #header_padding_x = NumericProperty( None )
     #header_padding_y = NumericProperty( 0 )# -9 )
@@ -128,7 +134,7 @@ class ProGrid( BoxLayout ) :
     """
     footer = ObjectProperty( None )
     footer_background_color = ListProperty( [ .8, .8, .8, 1 ] )
-    footer_height = NumericProperty( dp(20) )
+    footer_height = NumericProperty( dp(30) )
     footer_align = OptionProperty( 'left', options=['left','center','right'] )
     #footer_padding_x = NumericProperty( None )
     #footer_padding_y = NumericProperty( None )
@@ -140,7 +146,7 @@ class ProGrid( BoxLayout ) :
     grid_color = ListProperty( [ .8, .8, .8, 1 ] )
     grid_width_h = NumericProperty( dp(1) )
     grid_width_v = NumericProperty( dp(0) )
-    row_height = NumericProperty( dp(28) )
+    row_height = NumericProperty( dp(36) )
 
     """
     Touch callbacks
@@ -154,10 +160,10 @@ class ProGrid( BoxLayout ) :
     """
     _data = ListProperty( [] )
     _rows = ListProperty( [] ) 
+    _coltypes = DictProperty( {} )
 
 
     def __init__( self, **kargs ) :
-
         super( ProGrid, self ).__init__( **kargs )
         self.___grid = {}
 
@@ -181,6 +187,7 @@ class ProGrid( BoxLayout ) :
             self._raise_too_much_data( len( self.data ) )
 
         self._setup_data( self.data )
+        self._build_coltypes()
         
         for col in self.columns : self.___grid[col] = []
 
@@ -226,10 +233,7 @@ class ProGrid( BoxLayout ) :
         for column in self.columns :
             lbl = ColumnHeader( 
                 text=self.headers[column],
-                root_layout=self, 
-                hover_color=[0,0,1,.5],
                 meta=column,
-                grid=self,
                 **args
             )
             self.header.add_widget( lbl )
@@ -257,14 +261,22 @@ class ProGrid( BoxLayout ) :
         
         first_col = True
         for column in self.columns :
-            text = str( line[column] if column in line.keys() else '' )
-            lbl = BindedLabel( 
-                text=('  ' if first_col else '' ) + text, 
-                **args
-            )
+
+            val = line[column] if column in line.keys() else ''
+
+            if self._coltypes[column] == bool :
+                w = ColorBoxLayout( background_color=self.content_background_color )
+                c = CheckBox( active=val, **args )
+                w.add_widget( c )
+            else : 
+                w = BindedLabel( 
+                    text=('  ' if first_col else '') + str(val), 
+                    **args
+                )
+
+            b.add_widget( w )
             first_col = False
-            b.add_widget( lbl )
-            self.___grid[column].append( lbl )
+            self.___grid[column].append( w )
 
         return b
 
@@ -275,10 +287,13 @@ class ProGrid( BoxLayout ) :
         
         self._data = []
         if len( data ) > 0 :
+
             #Data used by customizator
             self._all_columns = sorted( self.headers.keys() )#sorted( data[0].keys() )
+
             #Filtering
             self._data = filter( self._validate_line, data )
+
             #Sorting
             if len( self.row_sorting ) > 0 :
                 field, mode = self.row_sorting[0]
@@ -317,14 +332,17 @@ Be aware of performance issues.
     Args passed down to headers labels.
     """
     def _build_header_args( self ) :
-        font_name = {'font_name':self.header_font_name} if self.header_font_name else {}
-        font_size = {'font_size':self.header_font_size} if self.header_font_size else {}
-        h_align   = {'halign'   :self.header_align    } if self.header_align     else {}
-        v_align   = {'valign'   :'middle'             }
-        color     = {'color'    :self.text_color      } if self.text_color       else {}
+        font_name   = {'font_name'  :self.header_font_name} if self.header_font_name else {}
+        font_size   = {'font_size'  :self.header_font_size} if self.header_font_size else {}
+        h_align     = {'halign'     :self.header_align    } if self.header_align     else {}
+        v_align     = {'valign'     :'middle'             }
+        color       = {'color'      :self.text_color      } if self.text_color       else {}
+        root_layout = {'root_layout':self}
+        hover_color = {'hover_color':[0,0,1,.5]}
+        grid        = {'grid'       :self}
 #        padding_x = {'padding_x':self.header_padding_x} if self.header_padding_x else {}
 #        padding_y = {'padding_y':self.header_padding_y} if self.header_padding_y else {}
-        return self._build_dict( v_align, h_align, font_name, font_size, color )#, padding_x, padding_y )
+        return self._build_dict( v_align, h_align, font_name, font_size, color, root_layout, hover_color, grid )
 
     """
     Args passed down to content labels.
@@ -347,6 +365,24 @@ Be aware of performance issues.
         for widget in self.___grid[column] :
             widget.width = newwidth
             widget.size_hint[0] = None
+
+    """
+    Associates to each column the correct data type.
+    Uses the first row of data.
+    """
+    def _build_coltypes( self ) :
+    
+        line = self._data[0]
+        self._coltypes = {}
+
+        for column in self._all_columns :
+            obj = line[column] if column in line.keys() else ''
+            if isinstance( obj, bool ) : 
+                self._coltypes[column] = bool
+            else : 
+                self._coltypes[column] = str
+                     
+
 
 """
 Put this on your form to allow the user customize the ProGrid.
@@ -547,6 +583,7 @@ Please quote ( '' ) any text in your filters.""" )
 
         return x
 
+
 """
 Resizable widget.
 """
@@ -555,6 +592,8 @@ class ColumnHeader( ResizeableLabel ) :
     grid = ObjectProperty( None )
 
     def __init__( self, **kargs ) :
+#        kargs['text'] = '[b]' + kargs['text'] + '[/b]'
+#        kargs['markup'] = True
         super( ColumnHeader, self ).__init__( **kargs )
         self.on_new_size = self.grid.on_column_resize
 
@@ -564,7 +603,7 @@ Row layout, with tap, double tap and long press callback.
 class RowLayout( BoxLayout ) :
     
     rowid = NumericProperty( None )
-    grid = ObjectProperty( None )
+    grid = ObjectProperty( None )   
 
     def __init__( self, **kargs ) :
         super( RowLayout, self ).__init__( **kargs )
@@ -579,14 +618,15 @@ class RowLayout( BoxLayout ) :
         if self.grid : self.grid.on_row_long_press( self.rowid )
 
     def on_touch_down( self, touch ) :
-        if touch.is_double_tap : return self.on_double_tap( touch )
+        if touch.is_double_tap : 
+            return self.on_double_tap( touch )        
         self._create_clock( touch )
-        return True
+        return super( RowLayout, self ).on_touch_down( touch )
 
     def on_touch_up( self, touch ) :
         self._delete_clock( touch )
         if self.grid : self.grid.on_row_select( self.rowid )
-        return True
+        return super( RowLayout, self ).on_touch_up( touch )
 
     def on_double_tap( self, touch ) :
         if self.grid : self.grid.on_row_double_tap( self.rowid )
