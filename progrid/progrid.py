@@ -86,6 +86,11 @@ class ProGrid( BoxLayout ) :
     row_filters_names = DictProperty( {} )
 
     """
+    If true touch are not passed down to single widgets.
+    """
+    records_readonly = BooleanProperty( True )
+
+    """
     List of sort rules to use.
     Only one rule is accepted in the current implementation.
 
@@ -267,7 +272,9 @@ class ProGrid( BoxLayout ) :
         first_col = True
         for column in self.columns :
 
-            val = line[column] if column in line.keys() else ''
+            val = self._coltypes[column]( 
+                line[column] if column in line.keys() else '' 
+            )
 
             if self._coltypes[column] == bool :
                 w = ColorBoxLayout( background_color=self.content_background_color )
@@ -627,16 +634,16 @@ class RowLayout( BoxLayout ) :
         if touch.is_double_tap : 
             return self.on_double_tap( touch )        
         self._create_clock( touch )
-        return super( RowLayout, self ).on_touch_down( touch )
+        return self.grid.records_readonly or super(RowLayout,self).on_touch_down(touch)
 
     def on_touch_up( self, touch ) :
         self._delete_clock( touch )
         if self.grid : self.grid.on_row_select( self.rowid )
-        return super( RowLayout, self ).on_touch_up( touch )
+        return self.grid.records_readonly or super(RowLayout,self).on_touch_up(touch)
 
     def on_double_tap( self, touch ) :
         if self.grid : self.grid.on_row_double_tap( self.rowid )
-        return True
+        return self.grid.records_readonly
 
 
 
