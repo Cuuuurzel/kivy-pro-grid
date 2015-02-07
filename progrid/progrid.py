@@ -21,7 +21,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.textinput import TextInput
 
-from flatui.flatui import RaisedButton, FlatPopup, FlatTextInput, FloatingAction
+from flatui.flatui import FlatButton, FlatPopup, FlatTextInput, FloatingAction
 from flatui.labels import BindedLabel, ResizeableLabel
 from flatui.layouts import ColorBoxLayout
 from flatui.popups import AlertPopup, OkButtonPopup
@@ -122,7 +122,7 @@ class ProGrid( BoxLayout ) :
     """
     content = ObjectProperty( None )
     selection_color = ListProperty( [ .6, .6, 1, 1 ] )
-    content_background_color = ListProperty( [ .95, .95, .95, 1 ] )
+    content_background_color = ListProperty( [ .93, .93, .93, 1 ] )
     content_font_name = StringProperty( '' ) #'font/Roboto-Light.ttf' )
     content_font_size = NumericProperty( dp(15) )
     content_align = OptionProperty( 'left', options=['left','center','right'] )
@@ -131,7 +131,7 @@ class ProGrid( BoxLayout ) :
     Header properties...
     """
     header = ObjectProperty( None )
-    header_background_color = ListProperty( [ .93, .93, .93, 1 ] )
+    header_background_color = ListProperty( [ .88, .88, .88, 1 ] )
     header_font_name = StringProperty( '' ) #'font/Roboto-Medium.ttf' )
     header_font_size = NumericProperty( dp(17) )
     header_height = NumericProperty( dp(52) )
@@ -143,7 +143,7 @@ class ProGrid( BoxLayout ) :
     Footer properties...
     """
     footer = ObjectProperty( None )
-    footer_background_color = ListProperty( [ .93, .93, .93, 1 ] )
+    footer_background_color = ListProperty( [ .88, .88, .88, 1 ] )
     footer_height = NumericProperty( dp(30) )
     footer_align = OptionProperty( 'left', options=['left','center','right'] )
     #footer_padding_x = NumericProperty( None )
@@ -153,10 +153,10 @@ class ProGrid( BoxLayout ) :
     Other properties of less interest...
     """
     text_color = ListProperty( [ 0, 0, 0, .9 ] )
-    grid_color = ListProperty( [ .8, .8, .8, 1 ] )
+    grid_color = ListProperty( [ .88, .88, .88, 1 ] )
     grid_width_h = NumericProperty( dp(1) )
     grid_width_v = NumericProperty( dp(0) )
-    row_height = NumericProperty( dp(36) )
+    row_height = NumericProperty( dp(42) )
 
     """
     Touch callbacks
@@ -532,16 +532,16 @@ Please quote ( '' ) any text in your filters.""" )
     def _build_footer( self ) :
 
         footer = BoxLayout( orientation='horizontal', spacing=dp(10), size_hint=(1,None), height=dp(35) )        
-        args = { 'size_hint':(.2,1), 'background_color':[0,.59,.53,1], 'background_color_down':[0,.41,.36,1] }
+        args = { 'size_hint':(.2,1), 'color':[0,.59,.53,1], 'color_down':[0,0,0,.7] }
         
         txt = '[ref=main][b]       ?       [/b][/ref]'
         lbl = Label( text=txt, markup=True, color=[0,0,0,.8], font_size=dp(18) )
         lbl.bind( on_ref_press=self._help_popup.open )
 
-        cancel_button = RaisedButton( text='X', **args )
+        cancel_button = FlatButton( markup=True, text='Cancel', **args )
         cancel_button.bind( on_press=self.exit_customizer )
 
-        ok_button = RaisedButton( text='OK', **args )
+        ok_button = FlatButton( markup=True, text='[b]OK[/b]', **args )
         ok_button.bind( on_press=self.save_and_exit )
 
         footer.add_widget( lbl )
