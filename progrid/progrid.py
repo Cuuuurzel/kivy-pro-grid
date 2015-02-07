@@ -21,7 +21,7 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.textinput import TextInput
 
-from flatui.flatui import FlatButton, FlatPopup, FlatTextInput, FloatingAction
+from flatui.flatui import RaisedButton, FlatPopup, FlatTextInput, FloatingAction
 from flatui.labels import BindedLabel, ResizeableLabel
 from flatui.layouts import ColorBoxLayout
 from flatui.popups import AlertPopup, OkButtonPopup
@@ -538,10 +538,10 @@ Please quote ( '' ) any text in your filters.""" )
         lbl = Label( text=txt, markup=True, color=[0,0,0,.8], font_size=dp(18) )
         lbl.bind( on_ref_press=self._help_popup.open )
 
-        cancel_button = FlatButton( text='X', **args )
+        cancel_button = RaisedButton( text='X', **args )
         cancel_button.bind( on_press=self.exit_customizer )
 
-        ok_button = FlatButton( text='OK', **args )
+        ok_button = RaisedButton( text='OK', **args )
         ok_button.bind( on_press=self.save_and_exit )
 
         footer.add_widget( lbl )
