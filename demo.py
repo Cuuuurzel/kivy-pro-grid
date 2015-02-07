@@ -2,14 +2,18 @@ import sys
 sys.path.append( '/home/curzel/Desktop/dev/kivy-material-ui' )
 
 from kivy.app import App
+from kivy.config import Config
 from kivy.lang import Builder
 from kivy.properties import *
+from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.floatlayout import FloatLayout
 
 from random import choice, randint 
 
 #from forms.recordform import RecordForm
 from progrid.progrid import ProGrid, ProGridCustomizator
+
+SIZE = [ Config.getint('graphics', 'width'), Config.getint('graphics', 'height') ]
 
 class TestApp( App ) :
     
@@ -32,11 +36,11 @@ class TestApp( App ) :
             size_hint=(1,1), pos=(0,0)
         )
 
-        btn = ProGridCustomizator( grid=grid )
+        al = ProGridCustomizator( grid=grid ).boxed()
 
-        self.t = FloatLayout( size_hint=(1,1) )
+        self.t = FloatLayout( size_hint=(1,1) )#, size=WINDOW_SIZE )
         self.t.add_widget( grid )
-        self.t.add_widget( btn )
+        self.t.add_widget( al )
         return self.t
 
     def on_pause( self, *args ) : return True

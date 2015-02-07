@@ -131,7 +131,7 @@ class ProGrid( BoxLayout ) :
     Header properties...
     """
     header = ObjectProperty( None )
-    header_background_color = ListProperty( [ .8, .8, .8, 1 ] )
+    header_background_color = ListProperty( [ .93, .93, .93, 1 ] )
     header_font_name = StringProperty( '' ) #'font/Roboto-Medium.ttf' )
     header_font_size = NumericProperty( dp(17) )
     header_height = NumericProperty( dp(52) )
@@ -143,7 +143,7 @@ class ProGrid( BoxLayout ) :
     Footer properties...
     """
     footer = ObjectProperty( None )
-    footer_background_color = ListProperty( [ .8, .8, .8, 1 ] )
+    footer_background_color = ListProperty( [ .93, .93, .93, 1 ] )
     footer_height = NumericProperty( dp(30) )
     footer_align = OptionProperty( 'left', options=['left','center','right'] )
     #footer_padding_x = NumericProperty( None )
@@ -595,7 +595,6 @@ Please quote ( '' ) any text in your filters.""" )
         x.add_widget( self._build_footer() )
 
         return x
-
 
 """
 Resizable widget.
