@@ -135,7 +135,7 @@ class ProGrid( BoxLayout ) :
     header_font_name = StringProperty( '' ) #'font/Roboto-Medium.ttf' )
     header_font_size = NumericProperty( dp(17) )
     header_height = NumericProperty( dp(52) )
-    header_align = OptionProperty( 'center', options=['left','center','right'] )
+    header_align = OptionProperty( 'left', options=['left','center','right'] )
     #header_padding_x = NumericProperty( None )
     #header_padding_y = NumericProperty( 0 )# -9 )
 
@@ -239,13 +239,15 @@ class ProGrid( BoxLayout ) :
 
         self.header.clear_widgets()
         args = self._build_header_args()
+        first_col = True
 
         for column in self.columns :
             lbl = ColumnHeader( 
-                text=self.headers[column],
+                text=('  ' if first_col else '') + self.headers[column],
                 meta=column,
                 **args
             )
+            first_col = False
             self.header.add_widget( lbl )
             self.___grid[column].append( lbl )
 
@@ -278,8 +280,10 @@ class ProGrid( BoxLayout ) :
 
             if self._coltypes[column] == bool :
                 w = ColorBoxLayout( background_color=self.content_background_color )
-                c = CheckBox( active=val, **args )
+                c = CheckBox( active=val, size_hint=(None,1), **args )
+                s = BoxLayout( size_hint=(1,1) )
                 w.add_widget( c )
+                w.add_widget( s )
             else : 
                 w = BindedLabel( 
                     text=('  ' if first_col else '') + str(val), 
