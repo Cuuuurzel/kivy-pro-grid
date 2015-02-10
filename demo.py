@@ -36,11 +36,11 @@ class TestApp( App ) :
             size_hint=(1,1), pos=(0,0)
         )
 
-        al = ProGridCustomizator( grid=grid ).boxed()
 
         self.t = FloatLayout( size_hint=(1,1) )#, size=WINDOW_SIZE )
         self.t.add_widget( grid )
-        self.t.add_widget( al )
+        #self.t.add_widget( al )
+        ProGridCustomizator( grid=grid ).add_to_bottom_right( self.t )
         return self.t
 
     def on_pause( self, *args ) : return True

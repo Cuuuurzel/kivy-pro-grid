@@ -483,22 +483,26 @@ Please quote ( '' ) any text in your filters.""" )
 
         filters = {}
         filters_names = {}
+        comparators = '< <= => > == != and or'.split(' ')
+        startswith = lambda v: expression.startswith(v)
+
         for column in self.grid._all_columns :
             chk, lbl, fil = self._columns[ column ]
             if len( fil.text.strip() ) > 0 :
 
                 expression = fil.text.strip()
-    
-                if expression[0] in '< <= => > == != and or'.split(' ') :
-                    foo = 'lambda VAL: %s' % ( 'VAL ' + expression )
 
-                if '$VAL' in expression :                 
-                    foo = 'lambda VAL: %s' % ( expression.replace('$VAL','VAL') )
+                if len( list( filter(startswith, comparators) ) ) > 0 :
+                    foo = 'lambda VAL: %s' % ( '_format_val(VAL) ' + expression )
+                elif '$VAL' in expression :                 
+                    foo = 'lambda VAL: %s' % ( expression.replace('$VAL','_format_val(VAL)') )
+                else :
+                    foo = "lambda VAL: _format_val(VAL) == _format_val('" + expression + "')"
 
                 try :
                     filters[ column ] = eval( foo )
                     filters_names[ column ] = expression
-                except Exception as e :
+                except Exception as e : 
                     AlertPopup( text=self.cannot_use_expression_for_field % ( lbl.text.lower() ) ).open()
                     self._filter_error_occur = True
                     print( e )
@@ -648,7 +652,10 @@ class RowLayout( BoxLayout ) :
         if self.grid : self.grid.on_row_double_tap( self.rowid )
         return self.grid.records_readonly
 
-
+"""
+Used by filters...
+"""
+def _format_val( v ) : return str(v).lower()
 
 
 
