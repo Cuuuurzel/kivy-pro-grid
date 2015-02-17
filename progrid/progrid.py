@@ -71,9 +71,14 @@ class ProGrid( BoxLayout ) :
     headers = DictProperty( {} )
 
     """
-    List of columns to show, ordered.
+    List of columns to show.
     """
     columns = ListProperty( [] )
+
+    """
+    List of ALL possibile columns, ordered.
+    """
+    col_order = ListProperty( [] )
 
     """
     Dictionary containing functions used to filter data.
@@ -301,11 +306,17 @@ class ProGrid( BoxLayout ) :
     """
     def _setup_data( self, data ) :
         
+        if len(self.col_order) == 0 :
+            self.col_order = self.columns
+
         self._data = []
         if len( data ) > 0 :
 
             #Data used by customizator
-            self._all_columns = sorted( self.headers.keys() )#sorted( data[0].keys() )
+            self._all_columns = []
+            for col in self.col_order :
+                if col in self.columns :
+                    self._all_columns.append( col )
 
             #Filtering
             self._data = filter( self._validate_line, data )
