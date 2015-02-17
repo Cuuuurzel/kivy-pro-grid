@@ -7,7 +7,7 @@ from kivy.adapters.listadapter import ListAdapter
 from kivy.clock import Clock
 from kivy.graphics import Color, Rectangle
 from kivy.lang import Builder
-from kivy.metrics import dp
+from kivy.metrics import dp, sp
 from kivy.properties import *
 from kivy.uix.button import Button
 from kivy.uix.checkbox import CheckBox
@@ -280,7 +280,7 @@ class ProGrid( BoxLayout ) :
 
             if self._coltypes[column] == bool :
                 w = ColorBoxLayout( background_color=self.content_background_color )
-                c = CheckBox( active=val, size_hint=(None,1), **args )
+                c = CheckBox( active=val, size_hint=(None,1), width=sp(32), **args )
                 s = BoxLayout( size_hint=(1,1) )
                 w.add_widget( c )
                 w.add_widget( s )
