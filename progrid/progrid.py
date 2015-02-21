@@ -21,6 +21,8 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.textinput import TextInput
 
+import pdb 
+
 from flatui.flatui import FlatButton, FlatPopup, FlatTextInput, FloatingAction
 from flatui.labels import BindedLabel, ResizeableLabel
 from flatui.layouts import ColorBoxLayout
@@ -204,6 +206,7 @@ class ProGrid( BoxLayout ) :
         self._setup_data( self.data )
         self._build_coltypes()
         
+#        pdb.set_trace()
         for col in self.columns : self.___grid[col] = []
 
         #Header & footer
@@ -537,7 +540,7 @@ Please quote ( '' ) any text in your filters.""" )
     """
     def customize( self ) :
         self.popup = FlatPopup( 
-            size_hint=(.7,.7), \
+            size_hint=(.9,.7), \
             title=self.popup_title, \
             title_size=dp(20), \
             title_color=[0,0,0,.8], \
