@@ -402,10 +402,15 @@ Be aware of performance issues.
     """
     def _build_coltypes( self ) :
     
-        line = self._data[0]
+        columns = ( set(self.headers.keys()) - set(self.coltypes) )
         self._coltypes = self.coltypes
 
-        for column in ( set(self.headers.keys()) - set(self.coltypes) ) :
+        if len( self._data ) > 0 : 
+            line = self._data[0]
+        else :
+            line = [ '' for c in columns ]
+
+        for column in columns :
 
             obj = line[column] if column in line.keys() else ''
             if isinstance( obj, bool ) : 
@@ -540,7 +545,7 @@ Please quote ( '' ) any text in your filters.""" )
     """
     def customize( self ) :
         self.popup = FlatPopup( 
-            size_hint=(.9,.7), \
+            size_hint=(.92,.7), \
             title=self.popup_title, \
             title_size=dp(20), \
             title_color=[0,0,0,.8], \
