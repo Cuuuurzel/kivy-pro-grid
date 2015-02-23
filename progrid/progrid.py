@@ -125,6 +125,11 @@ class ProGrid( BoxLayout ) :
     coltypes = DictProperty( {} ) 
 
     """
+    Text displayed if no data is provided
+    """ 
+    text_no_data = StringProperty( 'No data found.' ) 
+
+    """
     Content properties...
     """
     content = ObjectProperty( None )
@@ -329,6 +334,8 @@ class ProGrid( BoxLayout ) :
                 field, mode = self.row_sorting[0]
                 reverse = False if mode == 'asc' else True
                 self._data = sorted( self._data, key=lambda o: o[field], reverse=reverse )
+        else :
+            self.add_widget( Label( text=self.text_no_data, color=self.text_color ) )
          
     """
     Will apply given filters.
