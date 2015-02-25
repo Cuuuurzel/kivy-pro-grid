@@ -38,8 +38,11 @@ class TestApp( App ) :
 
         self.t = FloatLayout( size_hint=(1,1) )#, size=WINDOW_SIZE )
         self.t.add_widget( grid )
-        #self.t.add_widget( al )
         ProGridCustomizator( grid=grid ).add_to_bottom_right( self.t )
+
+
+        new_data = { 'name':'Pro grid rocks', 'surname':'Suuuurnameee!', 'birth':'not a date field, lol', 'sample':True }
+        grid.update_single_row( 4, new_data )
         return self.t
 
     def on_pause( self, *args ) : return True

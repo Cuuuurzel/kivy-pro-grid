@@ -58,6 +58,7 @@ Inspired by DevExpress CxGrid...
     - Still damn slow
     - Rows grouping not yet implemented
     - Not saving user configuration
+    - Columns all have the same width by default
 
 """
 class ProGrid( BoxLayout ) :
@@ -224,6 +225,7 @@ class ProGrid( BoxLayout ) :
 
         for n, line in enumerate( self._data ) :
             row = self._gen_row( line, n )
+            self._rows.append( row )
             self.content.add_widget( row )
             self.content.height += row.height
         
@@ -425,6 +427,14 @@ Be aware of performance issues.
             else : 
                 self._coltypes[column] = str
                      
+    """
+    Will update a single row of the grid.
+    """
+    def update_single_row( self, rowid, data ) :
+        self.data[rowid] = data
+        self.content.remove_widget( self._rows[rowid] )
+        self._rows[rowid] = self._gen_row( data, rowid )
+        self.content.add_widget( self._rows[rowid], len(self.content.children) )
 
 
 """
