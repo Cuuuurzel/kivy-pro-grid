@@ -222,6 +222,7 @@ class ProGrid( BoxLayout ) :
         #Content
         self.content.clear_widgets()
         self.content.height = 0
+        self._rows = []
 
         for n, line in enumerate( self._data ) :
             row = self._gen_row( line, n )
