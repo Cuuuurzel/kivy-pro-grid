@@ -23,10 +23,10 @@ from kivy.uix.textinput import TextInput
 
 import pdb 
 
-from flatui.flatui import FlatButton, FlatPopup, FlatTextInput, FloatingAction
-from flatui.labels import BindedLabel, ResizeableLabel
-from flatui.layouts import ColorBoxLayout
-from flatui.popups import AlertPopup, OkButtonPopup
+from material_ui.flatui.flatui import FlatButton, FlatPopup, FlatTextInput, FloatingAction
+from material_ui.flatui.labels import BindedLabel, ResizeableLabel
+from material_ui.flatui.layouts import ColorBoxLayout
+from material_ui.flatui.popups import AlertPopup, OkButtonPopup
 
 #KV Lang files
 from pkg_resources import resource_filename
@@ -563,7 +563,7 @@ Please quote ( '' ) any text in your filters.""" )
     """
     def customize( self ) :
         self.popup = FlatPopup( 
-            size_hint=(.92,.7), \
+            size_hint=(.95,.7), \
             title=self.popup_title, \
             title_size=dp(20), \
             title_color=[0,0,0,.8], \

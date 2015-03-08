@@ -1,0 +1,2 @@
+include progrid/images/
+include progrid/*.kv
