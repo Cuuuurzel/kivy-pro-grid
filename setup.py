@@ -9,6 +9,6 @@ setup(
     author_email='cuuuurzel@gmail.com',
     packages    =['progrid'],
     zip_safe    =False,
-    install_requires=['kivy','material_ui'],
+#    install_requires=['kivy','material_ui'],
     include_package_data=True,
 )
