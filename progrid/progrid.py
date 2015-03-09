@@ -1,5 +1,4 @@
 import sys
-sys.path.append( '/home/curzel/Desktop/dev/kivy-material-ui/flatui' )
 
 from functools import partial
 from kivy.adapters.dictadapter import DictAdapter

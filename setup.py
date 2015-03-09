@@ -1,8 +1,8 @@
 from setuptools import setup
 
 setup(
-    name        ='progrid',
-    version     ='0.1',
+    name        ='kv_progrid',
+    version     ='0.1.1',
     description ='Easy to use grid for kivy.',
     url         ='https://github.com/Cuuuurzel/kivy-pro-grid',
     author      ='Federico Curzel',
