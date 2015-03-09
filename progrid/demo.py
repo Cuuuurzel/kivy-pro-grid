@@ -1,5 +1,4 @@
 import sys
-sys.path.append( '/home/curzel/Desktop/dev/kivy-material-ui' )
 
 from kivy.app import App
 from kivy.config import Config
@@ -10,8 +9,7 @@ from kivy.uix.floatlayout import FloatLayout
 
 from random import choice, randint 
 
-#from forms.recordform import RecordForm
-from progrid.progrid import ProGrid, ProGridCustomizator
+from progrid import ProGrid, ProGridCustomizator
 
 SIZE = [ Config.getint('graphics', 'width'), Config.getint('graphics', 'height') ]
 
