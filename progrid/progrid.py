@@ -143,7 +143,7 @@ class ProGrid( BoxLayout ) :
     Header properties...
     """
     header = ObjectProperty( None )
-    header_background_color = ListProperty( [ .88, .88, .88, 1 ] )
+    header_background_color = ListProperty( [ .9, .9, .9, 1 ] )
     header_font_name = StringProperty( '' ) #'font/Roboto-Medium.ttf' )
     header_font_size = NumericProperty( dp(17) )
     header_height = NumericProperty( dp(52) )
@@ -155,7 +155,7 @@ class ProGrid( BoxLayout ) :
     Footer properties...
     """
     footer = ObjectProperty( None )
-    footer_background_color = ListProperty( [ .88, .88, .88, 1 ] )
+    footer_background_color = ListProperty( [ .9, .9, .9, 1 ] )
     footer_height = NumericProperty( dp(30) )
     footer_align = OptionProperty( 'left', options=['left','center','right'] )
     #footer_padding_x = NumericProperty( None )
@@ -165,7 +165,7 @@ class ProGrid( BoxLayout ) :
     Other properties of less interest...
     """
     text_color = ListProperty( [ 0, 0, 0, .9 ] )
-    grid_color = ListProperty( [ .88, .88, .88, 1 ] )
+    grid_color = ListProperty( [ .9, .9, .9, 1 ] )
     grid_width_h = NumericProperty( dp(1) )
     grid_width_v = NumericProperty( dp(0) )
     row_height = NumericProperty( dp(42) )
