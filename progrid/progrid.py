@@ -23,10 +23,10 @@ from kivy.uix.textinput import TextInput
 
 import pdb 
 
-from material_ui.flatui.flatui import FlatButton, FlatPopup, FlatTextInput, FloatingAction
+from material_ui.flatui.flatui import FlatButton, FlatTextInput, FloatingAction
 from material_ui.flatui.labels import BindedLabel, ResizeableLabel
 from material_ui.flatui.layouts import ColorBoxLayout
-from material_ui.flatui.popups import AlertPopup, OkButtonPopup
+from material_ui.flatui.popups import AlertPopup, FlatPopup, OkButtonPopup
 
 #KV Lang files
 from pkg_resources import resource_filename
