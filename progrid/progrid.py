@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 
 from functools import partial
@@ -135,7 +136,7 @@ class ProGrid( BoxLayout ) :
     content = ObjectProperty( None )
     selection_color = ListProperty( [ .6, .6, 1, 1 ] )
     content_background_color = ListProperty( [ .93, .93, .93, 1 ] )
-    content_font_name = StringProperty( '' ) #'font/Roboto-Light.ttf' )
+    content_font_name = StringProperty( '' ) 
     content_font_size = NumericProperty( dp(15) )
     content_align = OptionProperty( 'left', options=['left','center','right'] )
 
@@ -144,12 +145,10 @@ class ProGrid( BoxLayout ) :
     """
     header = ObjectProperty( None )
     header_background_color = ListProperty( [ .9, .9, .9, 1 ] )
-    header_font_name = StringProperty( '' ) #'font/Roboto-Medium.ttf' )
+    header_font_name = StringProperty( '' )
     header_font_size = NumericProperty( dp(17) )
     header_height = NumericProperty( dp(52) )
     header_align = OptionProperty( 'left', options=['left','center','right'] )
-    #header_padding_x = NumericProperty( None )
-    #header_padding_y = NumericProperty( 0 )# -9 )
 
     """
     Footer properties...
@@ -158,8 +157,6 @@ class ProGrid( BoxLayout ) :
     footer_background_color = ListProperty( [ .9, .9, .9, 1 ] )
     footer_height = NumericProperty( dp(30) )
     footer_align = OptionProperty( 'left', options=['left','center','right'] )
-    #footer_padding_x = NumericProperty( None )
-    #footer_padding_y = NumericProperty( None )
 
     """
     Other properties of less interest...
@@ -186,6 +183,7 @@ class ProGrid( BoxLayout ) :
 
 
     def __init__( self, **kargs ) :
+
         super( ProGrid, self ).__init__( **kargs )
         self.___grid = {}
 
@@ -211,7 +209,6 @@ class ProGrid( BoxLayout ) :
         self._setup_data( self.data )
         self._build_coltypes()
         
-#        pdb.set_trace()
         for col in self.columns : self.___grid[col] = []
 
         #Header & footer
@@ -251,17 +248,19 @@ class ProGrid( BoxLayout ) :
     Will add columns names to header.
     """
     def _gen_header( self ) :
-
         self.header.clear_widgets()
         args = self._build_header_args()
         first_col = True
 
         for column in self.columns :
-            lbl = ColumnHeader( 
-                text=('  ' if first_col else '') + self.headers[column],
-                meta=column,
-                **args
-            )
+            
+#            if column == 'city' : pdb.set_trace()
+
+            spacing = '  ' if first_col else ''
+            text = spacing + self.headers[column] 
+            text = unicode( text ).encode( 'utf-8' )
+            lbl = ColumnHeader( text=text, meta=column, **args )
+
             first_col = False
             self.header.add_widget( lbl )
             self.___grid[column].append( lbl )
@@ -277,12 +276,12 @@ class ProGrid( BoxLayout ) :
     Will generate a single row.
     """
     def _gen_row( self, line, n ) :
+
         b = RowLayout( 
             height=self.row_height, 
             orientation='horizontal', 
             rowid=n, grid=self, 
-            spacing=[self.grid_width_h, self.grid_width_v],\
-#            padding=[ dp(5), 0, 0, 0 ],
+            spacing=[self.grid_width_h, self.grid_width_v],
         )
         args = self._build_content_args()
         
@@ -300,10 +299,10 @@ class ProGrid( BoxLayout ) :
                 w.add_widget( c )
                 w.add_widget( s )
             else : 
-                w = BindedLabel( 
-                    text=('  ' if first_col else '') + str(val), 
-                    **args
-                )
+                spacing = '  ' if first_col else ''
+                text = spacing + str(val)
+                text = unicode( text ).encode( 'utf-8' )
+                w = BindedLabel( text=text, **args )
 
             b.add_widget( w )
             first_col = False
