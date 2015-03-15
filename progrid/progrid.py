@@ -253,8 +253,6 @@ class ProGrid( BoxLayout ) :
         first_col = True
 
         for column in self.columns :
-            
-#            if column == 'city' : pdb.set_trace()
 
             spacing = '  ' if first_col else ''
             text = spacing + self.headers[column] 
@@ -322,10 +320,7 @@ class ProGrid( BoxLayout ) :
         if len( data ) > 0 :
 
             #Data used by customizator
-            self._all_columns = []
-            for col in self.col_order :
-                if col in self.columns :
-                    self._all_columns.append( col )
+            self._all_columns = self.data[0].keys()           
 
             #Filtering
             self._data = filter( self._validate_line, data )
@@ -378,8 +373,6 @@ Be aware of performance issues.
         root_layout = {'root_layout':self}
         hover_color = {'hover_color':[0,0,1,.5]}
         grid        = {'grid'       :self}
-#        padding_x = {'padding_x':self.header_padding_x} if self.header_padding_x else {}
-#        padding_y = {'padding_y':self.header_padding_y} if self.header_padding_y else {}
         return self._build_dict( v_align, h_align, font_name, font_size, color, root_layout, hover_color, grid )
 
     """
@@ -415,8 +408,7 @@ Be aware of performance issues.
 
         if len( self._data ) > 0 : 
             line = self._data[0]
-        else :
-            line = [ '' for c in columns ]
+        else : line = [ '' for c in columns ]
 
         for column in columns :
 
@@ -514,14 +506,13 @@ Please quote ( '' ) any text in your filters.""" )
     """
     def _get_row_filters( self ) :
         
-        #{ 'name':lambda n: n.startswith('M') } 
-
         filters = {}
         filters_names = {}
         comparators = '< <= => > == != and or'.split(' ')
         startswith = lambda v: expression.startswith(v)
 
-        for column in self.grid._all_columns :
+        for column in self._columns.keys() :
+ 
             chk, lbl, fil = self._columns[ column ]
             if len( fil.text.strip() ) > 0 :
 
@@ -549,12 +540,13 @@ Please quote ( '' ) any text in your filters.""" )
     Will return the ordered list of columns to be shown.
     """
     def _get_columns( self ) :
+
         columns = []
-        for column in self.grid._all_columns :
+        for column in self._columns.keys() :            
             chk, lbl, fil = self._columns[ column ]
             if chk.active :
                 columns.append( column )
-        return columns
+        return sorted( columns, key=lambda o: self.grid.col_order.index(o) )
 
     """
     Show customization panel.
@@ -619,6 +611,7 @@ Please quote ( '' ) any text in your filters.""" )
     Will build popup content.
     """
     def _build_content( self ) :
+
         s = ScrollView()
         x = BoxLayout( orientation='vertical' )#, padding=[dp(5),dp(5),dp(5),dp(10)] )
         content = GridLayout( cols=1, size_hint=(1,None) )
