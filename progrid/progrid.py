@@ -298,7 +298,7 @@ class ProGrid( BoxLayout ) :
                 w.add_widget( s )
             else : 
                 spacing = '  ' if first_col else ''
-                text = spacing + str(val)
+                text = spacing + str(val) if str(val) != 'None' else ''
                 text = unicode( text ).encode( 'utf-8' )
                 w = BindedLabel( text=text, **args )
 
