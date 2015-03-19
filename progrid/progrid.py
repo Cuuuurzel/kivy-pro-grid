@@ -284,7 +284,6 @@ class ProGrid( BoxLayout ) :
         args = self._build_content_args()
         
         first_col = True
-        if line['label']=='Massimo Calza' : pdb.set_trace()
         for column in self.columns :
 
             val = self._coltypes[column]( 
