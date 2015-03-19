@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pdb
 import sys
 
 from functools import partial
@@ -256,7 +257,6 @@ class ProGrid( BoxLayout ) :
 
             spacing = '  ' if first_col else ''
             text = spacing + self.headers[column] 
-            text = unicode( text ).encode( 'utf-8' )
             lbl = ColumnHeader( text=text, meta=column, **args )
 
             first_col = False
@@ -284,6 +284,7 @@ class ProGrid( BoxLayout ) :
         args = self._build_content_args()
         
         first_col = True
+        if line['label']=='Massimo Calza' : pdb.set_trace()
         for column in self.columns :
 
             val = self._coltypes[column]( 
@@ -297,9 +298,9 @@ class ProGrid( BoxLayout ) :
                 w.add_widget( c )
                 w.add_widget( s )
             else : 
-                spacing = '  ' if first_col else ''
-                text = spacing + str(val) if str(val) != 'None' else ''
-                text = unicode( text ).encode( 'utf-8' )
+                spacing = u'  ' if first_col else u''
+                text = spacing + val if val not in ['None', u'None'] else u''
+                text = text.encode( 'utf-8' )
                 w = BindedLabel( text=text, **args )
 
             b.add_widget( w )
