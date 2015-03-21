@@ -136,7 +136,7 @@ class ProGrid( BoxLayout ) :
     """
     content = ObjectProperty( None )
     selection_color = ListProperty( [ .6, .6, 1, 1 ] )
-    content_background_color = ListProperty( [ 0.9882352941176471, 0.9882352941176471, 0.9882352941176471, 1 ] )
+    content_background_color = ListProperty( [ .98, .98, .98, 1 ] )
     content_font_name = StringProperty( '' ) 
     content_font_size = NumericProperty( dp(15) )
     content_align = OptionProperty( 'left', options=['left','center','right'] )
@@ -145,7 +145,7 @@ class ProGrid( BoxLayout ) :
     Header properties...
     """
     header = ObjectProperty( None )
-    header_background_color = ListProperty( [ 0.9254901960784314, 0.9254901960784314, 0.9254901960784314, 1 ] )
+    header_background_color = ListProperty( [ .93, .93, .93, 1 ] )
     header_font_name = StringProperty( '' )
     header_font_size = NumericProperty( dp(17) )
     header_height = NumericProperty( dp(52) )
@@ -155,7 +155,7 @@ class ProGrid( BoxLayout ) :
     Footer properties...
     """
     footer = ObjectProperty( None )
-    footer_background_color = ListProperty( [ 0.9254901960784314, 0.9254901960784314, 0.9254901960784314, 1 ] )
+    footer_background_color = ListProperty( [ .93, .93, .93, 1 ] )
     footer_height = NumericProperty( dp(30) )
     footer_align = OptionProperty( 'left', options=['left','center','right'] )
 
@@ -163,7 +163,7 @@ class ProGrid( BoxLayout ) :
     Other properties of less interest...
     """
     text_color = ListProperty( [ 0, 0, 0, .9 ] )
-    grid_color = ListProperty( [ 0.9254901960784314, 0.9254901960784314, 0.9254901960784314, 1 ] )
+    grid_color = ListProperty( [ .93, .93, .93, 1 ] )
     grid_width_h = NumericProperty( dp(1) )
     grid_width_v = NumericProperty( dp(0) )
     row_height = NumericProperty( dp(42) )
@@ -255,9 +255,11 @@ class ProGrid( BoxLayout ) :
 
         for column in self.columns :
 
-            spacing = '  ' if first_col else ''
-            text = spacing + self.headers[column] 
-            lbl = ColumnHeader( text=text, meta=column, **args )
+            spacing = u'  ' if first_col else u''
+            text    = spacing + self.headers[column] 
+            text    = text.encode( 'utf-8' )
+
+            lbl     = ColumnHeader( text=text, meta=column, **args )
 
             first_col = False
             self.header.add_widget( lbl )
