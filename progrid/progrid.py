@@ -173,13 +173,13 @@ class ProGrid( BoxLayout ) :
     """
     on_double_tap = ObjectProperty( None )
     on_long_press = ObjectProperty( None )
-    on_select = ObjectProperty( None )
+    on_select     = ObjectProperty( None )
 
     """
     Private stuffs...
     """
-    _data = ListProperty( [] )
-    _rows = ListProperty( [] ) 
+    _data     = ListProperty( [] )
+    _rows     = ListProperty( [] ) 
     _coltypes = DictProperty( {} )
 
 
@@ -221,7 +221,7 @@ class ProGrid( BoxLayout ) :
         self.content.height = 0
         self._rows = []
 
-        for n, line in enumerate( self._data ) :
+        for n, line in enumerate( self._data ) :            
             row = self._gen_row( line, n )
             self._rows.append( row )
             self.content.add_widget( row )
@@ -230,20 +230,26 @@ class ProGrid( BoxLayout ) :
     """
     Called whenever a row is selected.
     """
-    def on_row_select( self, n ) :
-        if self.on_select : self.on_select( n, self._data[n] )
+    def on_row_select( self, gridrow ) :
+        if self.on_select : 
+            datarow = self._data[gridrow]['_progrid_order']
+            self.on_select( gridrow, datarow, self._data[gridrow] )
         
     """
     Called whenever a row is double tapped.
     """
-    def on_row_double_tap( self, n ) :
-        if self.on_double_tap : self.on_double_tap( n, self._data[n] )
+    def on_row_double_tap( self, gridrow ) :
+        if self.on_double_tap : 
+            datarow = self._data[gridrow]['_progrid_order']
+            self.on_double_tap( gridrow, datarow, self._data[gridrow] )
         
     """
     Called whenever a row is pressed of a long time.
     """
-    def on_row_long_press( self, n ) :
-        if self.on_long_press : self.on_long_press( n, self._data[n] )
+    def on_row_long_press( self, gridrow ) :
+        if self.on_long_press : 
+            datarow = self._data[gridrow]['_progrid_order']
+            self.on_long_press( gridrow, datarow, self._data[gridrow] )
 
     """
     Will add columns names to header.
@@ -278,10 +284,11 @@ class ProGrid( BoxLayout ) :
     def _gen_row( self, line, n ) :
 
         b = RowLayout( 
-            height=self.row_height, 
-            orientation='horizontal', 
-            rowid=n, grid=self, 
-            spacing=[self.grid_width_h, self.grid_width_v],
+            height      = self.row_height, 
+            orientation = 'horizontal', 
+            rowid       = n, 
+            grid        = self, 
+            spacing     = [self.grid_width_h, self.grid_width_v],
         )
         args = self._build_content_args()
         
@@ -317,6 +324,9 @@ class ProGrid( BoxLayout ) :
         
         if len(self.col_order) == 0 :
             self.col_order = self.columns
+
+        for i in range( len(self.data) ) :
+            self.data[i]['_progrid_order'] = i
 
         self._data = []
         if len( data ) > 0 :
@@ -642,8 +652,6 @@ class ColumnHeader( ResizeableLabel ) :
     grid = ObjectProperty( None )
 
     def __init__( self, **kargs ) :
-#        kargs['text'] = '[b]' + kargs['text'] + '[/b]'
-#        kargs['markup'] = True
         super( ColumnHeader, self ).__init__( **kargs )
         self.on_new_size = self.grid.on_column_resize
 
@@ -668,19 +676,24 @@ class RowLayout( BoxLayout ) :
         if self.grid : self.grid.on_row_long_press( self.rowid )
 
     def on_touch_down( self, touch ) :
-        if touch.is_double_tap : 
-            return self.on_double_tap( touch )        
-        self._create_clock( touch )
-        return self.grid.records_readonly or super(RowLayout,self).on_touch_down(touch)
-
+        if self.collide_point( *touch.pos ) :
+            if touch.is_double_tap : 
+                return self.on_double_tap( touch )        
+            self._create_clock( touch )
+            return self.grid.records_readonly or super(RowLayout,self).on_touch_down(touch)
+        return False
+    
     def on_touch_up( self, touch ) :
-        self._delete_clock( touch )
-        if self.grid : self.grid.on_row_select( self.rowid )
-        return self.grid.records_readonly or super(RowLayout,self).on_touch_up(touch)
+        if self.collide_point( *touch.pos ) :
+            self._delete_clock( touch )
+            if self.grid : self.grid.on_row_select( self.rowid )
+            return self.grid.records_readonly or super(RowLayout,self).on_touch_up(touch)
+        return False
 
     def on_double_tap( self, touch ) :
         if self.grid : self.grid.on_row_double_tap( self.rowid )
         return self.grid.records_readonly
+
 
 """
 Used by filters...
