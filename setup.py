@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name        ='kv_progrid',
-    version     ='0.1.2.8',
+    version     ='0.1.2.9',
     description ='Easy to use grid for kivy.',
     url         ='https://github.com/Cuuuurzel/kivy-pro-grid',
     author      ='Federico Curzel',

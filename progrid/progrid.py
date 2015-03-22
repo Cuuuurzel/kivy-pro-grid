@@ -127,7 +127,7 @@ class ProGrid( BoxLayout ) :
     coltypes = DictProperty( {} ) 
 
     """
-    Text displayed if no data is provided
+    Text displayed if no data is provided.
     """ 
     text_no_data = StringProperty( 'No data found.' ) 
 
@@ -164,8 +164,8 @@ class ProGrid( BoxLayout ) :
     """
     text_color = ListProperty( [ 0, 0, 0, .9 ] )
     grid_color = ListProperty( [ .93, .93, .93, 1 ] )
-    grid_width_h = NumericProperty( dp(1) )
-    grid_width_v = NumericProperty( dp(0) )
+    padding_h = NumericProperty( dp(5) )
+    padding_v = NumericProperty( dp(0) )
     row_height = NumericProperty( dp(42) )
 
     """
@@ -261,13 +261,13 @@ class ProGrid( BoxLayout ) :
 
         for column in self.columns :
 
-            spacing = u'  ' if first_col else u''
-            text    = spacing + self.headers[column] 
-            text    = text.encode( 'utf-8' )
-
-            lbl     = ColumnHeader( text=text, meta=column, **args )
-
+            text = self.headers[column] 
+            text = text.encode( 'utf-8' )
+            text = u' '+text if first_col else text
+            lbl  = ColumnHeader( text=text, meta=column, **args )
+            
             first_col = False
+
             self.header.add_widget( lbl )
             self.___grid[column].append( lbl )
 
@@ -284,11 +284,12 @@ class ProGrid( BoxLayout ) :
     def _gen_row( self, line, n ) :
 
         b = RowLayout( 
-            height      = self.row_height, 
-            orientation = 'horizontal', 
-            rowid       = n, 
-            grid        = self, 
-            spacing     = [self.grid_width_h, self.grid_width_v],
+            height           = self.row_height, 
+            orientation      = 'horizontal', 
+            rowid            = n, 
+            grid             = self, 
+            padding          = [self.padding_h, self.padding_v],
+            background_color = self.content_background_color,
         )
         args = self._build_content_args()
         
@@ -300,14 +301,13 @@ class ProGrid( BoxLayout ) :
             )
 
             if self._coltypes[column] == bool :
-                w = ColorBoxLayout( background_color=self.content_background_color )
+                w = BoxLayout()
                 c = CheckBox( active=val, size_hint=(None,1), width=sp(32), **args )
                 s = BoxLayout( size_hint=(1,1) )
                 w.add_widget( c )
                 w.add_widget( s )
             else : 
-                spacing = u'  ' if first_col else u''
-                text = spacing + val if val not in ['None', u'None'] else u''
+                text = val if val not in ['None', u'None'] else u''
                 text = text.encode( 'utf-8' )
                 w = BindedLabel( text=text, **args )
 
@@ -658,7 +658,7 @@ class ColumnHeader( ResizeableLabel ) :
 """
 Row layout, with tap, double tap and long press callback.
 """
-class RowLayout( BoxLayout ) :
+class RowLayout( ColorBoxLayout ) :
     
     rowid = NumericProperty( None )
     grid = ObjectProperty( None )   
