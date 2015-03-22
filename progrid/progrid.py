@@ -129,22 +129,7 @@ class ProGrid( BoxLayout ) :
     """
     Text displayed if no data is provided.
     """ 
-    text_no_data = StringProperty( 'No data found.' ) 
-
-    """
-    Text displayed in the footer.
-    """ 
-    footer_text = StringProperty( 'www.github.com/Cuuuurzel/kivy-pro-grid ' ) 
-
-    """
-    Footer text color.
-    """ 
-    footer_text_color = ListProperty( [0,0,0,.9] ) 
-
-    """
-    Horizontal footer text alignment.
-    """ 
-    footer_text_halign = OptionProperty( 'right', options=['left','center','right'] ) 
+    text_no_data = StringProperty( 'No data found.' )
 
     """
     Content properties...
@@ -172,7 +157,16 @@ class ProGrid( BoxLayout ) :
     footer = ObjectProperty( None )
     footer_background_color = ListProperty( [ .93, .93, .93, 1 ] )
     footer_height = NumericProperty( dp(30) )
-    footer_align = OptionProperty( 'left', options=['left','center','right'] )
+    footer_align = OptionProperty( 'left', options=['left','center','right'] ) 
+
+    """
+    Footer label properties
+    """ 
+    footer_text = StringProperty( 'www.github.com/Cuuuurzel/kivy-pro-grid ' ) 
+    footer_text_color = ListProperty( [0,0,0,.9] ) 
+    footer_text_halign = OptionProperty( 'right', options=['left','center','right'] ) 
+    footer_text_font_name = StringProperty( None )
+    footer_text_font_size = NumericProperty( dp(12) ) 
 
     """
     Other properties of less interest...
@@ -292,10 +286,13 @@ class ProGrid( BoxLayout ) :
     """
     def _gen_footer( self ) :
         lbl = BindedLabel(
-            text   = self.footer_text,
-            halign = self.footer_text_halign,
-            color  = self.footer_text_color,
+            text      = self.footer_text,
+            halign    = self.footer_text_halign,
+            color     = self.footer_text_color,
+            font_size = self.footer_text_font_size,
         )
+        if self.footer_text_font_name : 
+            lbl.font_name = self.footer_text_font_name
         self.footer.add_widget( lbl )
 
     """
