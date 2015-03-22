@@ -132,6 +132,21 @@ class ProGrid( BoxLayout ) :
     text_no_data = StringProperty( 'No data found.' ) 
 
     """
+    Text displayed in the footer.
+    """ 
+    footer_text = StringProperty( 'www.github.com/Cuuuurzel/kivy-pro-grid ' ) 
+
+    """
+    Footer text color.
+    """ 
+    footer_text_color = ListProperty( [0,0,0,.9] ) 
+
+    """
+    Horizontal footer text alignment.
+    """ 
+    footer_text_halign = OptionProperty( 'right', options=['left','center','right'] ) 
+
+    """
     Content properties...
     """
     content = ObjectProperty( None )
@@ -276,7 +291,12 @@ class ProGrid( BoxLayout ) :
     This view will allow to quickly remove filters.
     """
     def _gen_footer( self ) :
-        pass
+        lbl = BindedLabel(
+            text   = self.footer_text,
+            halign = self.footer_text_halign,
+            color  = self.footer_text_color,
+        )
+        self.footer.add_widget( lbl )
 
     """
     Will generate a single row.
