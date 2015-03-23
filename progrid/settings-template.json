@@ -1,0 +1,35 @@
+{
+    "version": 2,
+
+    "headers": {
+        "col1":"Sample Header #1",
+        "col2":"Sample Header #2",
+        "col3":"Sample Header #3",
+        "col4":"Sample Header #4",
+        "col5":"Sample Header #5"
+    },
+
+    "columns":            [ "col1", "col2", "col3", "col4" ],
+    "col_order":          [ "col1", "col3", "col4", "col2" ],
+
+    "row_filters":        {},
+    "row_filters_names":  {},
+    "row_sorting":        [],
+
+    "content_align":      "left",
+    "header_align":       "left",
+    "footer_text_halign": "right",
+
+    "data_len_limit":     1000,
+    "footer_text":        "www.github.com/Cuuuurzel/kivy-pro-grid ",
+    "footer_text_color":  [ 0, 0, 0, 0.9 ],
+
+    "selection_color":    [ 0.6, 0.6, 1, 1 ],
+    "text_color":         [ 0, 0, 0, 0.9 ],
+    "text_no_data":       "No data found.",
+
+    "grid_color":               [ 0.93, 0.93, 0.93, 1 ],
+    "content_background_color": [ 0.98, 0.98, 0.98, 1 ],
+    "footer_background_color":  [ 0.93, 0.93, 0.93, 1 ],
+    "header_background_color":  [ 0.93, 0.93, 0.93, 1 ]
+}

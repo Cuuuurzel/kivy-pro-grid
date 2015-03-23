@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import pdb
 import sys
 
@@ -21,8 +22,6 @@ from kivy.uix.selectableview import SelectableView
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.textinput import TextInput
-
-import pdb 
 
 from material_ui.flatui.flatui import FlatButton, FlatTextInput, FloatingAction
 from material_ui.flatui.labels import BindedLabel, ResizeableLabel
@@ -193,6 +192,13 @@ class ProGrid( BoxLayout ) :
 
 
     def __init__( self, **kargs ) :
+
+        if 'ini_file' in kargs.keys() :
+            f = open( kargs['ini_file'] )
+            content = '\n'.join( f.readlines() )
+            f.close()
+            json_args = _fixkeys( json.loads(content) )
+            kargs.update( json_args )
 
         super( ProGrid, self ).__init__( **kargs )
         self.___grid = {}
@@ -717,7 +723,14 @@ Used by filters...
 """
 def _format_val( v ) : return str(v).lower()
 
-
+"""
+Fixes unicode keys...
+"""
+def _fixkeys( d ) :
+    result = {}
+    for key in d.keys() :
+        result[ str(key) ] = d[key]
+    return result
 
 
 
