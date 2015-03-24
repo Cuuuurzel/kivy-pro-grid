@@ -756,7 +756,7 @@ Please quote ( '' ) any text in your filters.""" )
         return x
 
 """
-BoxLayout you can use to filter grid records.
+Layout you can use to filter grid records.
 """
 class ProGridSearchForm( BoxLayout ) :
 
@@ -792,7 +792,7 @@ class ProGridSearchForm( BoxLayout ) :
     Properties used for hint...
     """
     hint_text = StringProperty( 'Use any keyword to filter records.' )
-    hint_font_size = StringProperty( dp(16) )
+    hint_font_size = StringProperty( dp(18) )
     hint_font_name = StringProperty( '' )
 
     """
@@ -844,6 +844,8 @@ class ProGridSearchPopup( FlatPopup ) :
         kargs['on_search'   ] = self._on_search
         kargs['after_search'] = self._after_search
         kargs['title_text'  ] = ''
+        kargs.pop( 'size_hint', None )
+        kargs.pop( 'pos_hint', None )
     
         if 'title_font' in kargs.keys() :
             kargs['title_font_name'] = kargs['title_font']
