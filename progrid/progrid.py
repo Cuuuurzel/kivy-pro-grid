@@ -133,37 +133,37 @@ class ProGrid( BoxLayout ) :
     """
     Content properties...
     """
-    content = ObjectProperty( None )
-    selection_color = ListProperty( [ .6, .6, 1, 1 ] )
-    content_background_color = ListProperty( [ .98, .98, .98, 1 ] )
+    content           = ObjectProperty( None )
+    selection_color   = ListProperty( [ .6, .6, 1, 1 ] )
     content_font_name = StringProperty( '' ) 
     content_font_size = NumericProperty( dp(15) )
-    content_align = OptionProperty( 'left', options=['left','center','right'] )
+    content_align     = OptionProperty( 'left', options=['left','center','right'] )
+    content_background_color = ListProperty( [ .98, .98, .98, 1 ] )
 
     """
     Header properties...
     """
-    header = ObjectProperty( None )
-    header_background_color = ListProperty( [ .93, .93, .93, 1 ] )
+    header           = ObjectProperty( None )
     header_font_name = StringProperty( '' )
     header_font_size = NumericProperty( dp(17) )
-    header_height = NumericProperty( dp(52) )
-    header_align = OptionProperty( 'left', options=['left','center','right'] )
+    header_height    = NumericProperty( dp(52) )
+    header_align     = OptionProperty( 'left', options=['left','center','right'] )
+    header_background_color = ListProperty( [ .93, .93, .93, 1 ] )
 
     """
     Footer properties...
     """
-    footer = ObjectProperty( None )
-    footer_background_color = ListProperty( [ .93, .93, .93, 1 ] )
+    footer        = ObjectProperty( None )
     footer_height = NumericProperty( dp(30) )
-    footer_align = OptionProperty( 'left', options=['left','center','right'] ) 
+    footer_align  = OptionProperty( 'left', options=['left','center','right'] ) 
+    footer_background_color = ListProperty( [ .93, .93, .93, 1 ] )
 
     """
     Footer label properties
     """ 
-    footer_text = StringProperty( 'www.github.com/Cuuuurzel/kivy-pro-grid ' ) 
-    footer_text_color = ListProperty( [0,0,0,.9] ) 
-    footer_text_halign = OptionProperty( 'right', options=['left','center','right'] ) 
+    footer_text           = StringProperty( 'www.github.com/Cuuuurzel/kivy-pro-grid ' ) 
+    footer_text_color     = ListProperty( [0,0,0,.9] ) 
+    footer_text_halign    = OptionProperty( 'right', options=['left','center','right'] ) 
     footer_text_font_name = StringProperty( None )
     footer_text_font_size = NumericProperty( dp(12) ) 
 
@@ -172,8 +172,8 @@ class ProGrid( BoxLayout ) :
     """
     text_color = ListProperty( [ 0, 0, 0, .9 ] )
     grid_color = ListProperty( [ .93, .93, .93, 1 ] )
-    padding_h = NumericProperty( dp(5) )
-    padding_v = NumericProperty( dp(0) )
+    padding_h  = NumericProperty( dp(5) )
+    padding_v  = NumericProperty( dp(0) )
     row_height = NumericProperty( dp(42) )
 
     """
@@ -194,11 +194,14 @@ class ProGrid( BoxLayout ) :
     def __init__( self, **kargs ) :
 
         if 'ini_file' in kargs.keys() :
-            f = open( kargs['ini_file'] )
-            content = '\n'.join( f.readlines() )
-            f.close()
-            json_args = _fixkeys( json.loads(content) )
-            kargs.update( json_args )
+            try :
+                f = open( kargs['ini_file'] )
+                content = '\n'.join( f.readlines() )
+                f.close()
+                json_args = _fixkeys( json.loads(content) )
+                kargs.update( json_args )
+            except : 
+                log( 'Settings file %s is invalid' % kargs['ini_file'] )
 
         super( ProGrid, self ).__init__( **kargs )
         self.___grid = {}
@@ -214,6 +217,83 @@ class ProGrid( BoxLayout ) :
         #Binding occurs after init, so we need to force first setup
         self._render( self.data )
 
+    """
+    Return a json string containing settings.
+   
+    Options :
+
+      no_metadata 
+        Will not export metadata, such as columns and columns order.
+
+      no_filters
+        Will not export filters and sortings.
+
+      no_aspect
+        Will not export gui settings.
+    """
+    def json_settings( self, **kargs ) :
+
+        exportables = [ 
+            'footer_text',
+            'data_len_limit',
+            'text_no_data',
+        ]
+        to_export = exportables
+        
+        metadata = [
+            'headers',
+            'columns',
+            'col_order',
+        ]
+        
+        filters = [
+            'row_filters',
+            'row_filters_names',
+            'row_sorting',
+        ]
+        
+        aspect = [
+            'content_align',
+            'header_align',
+            'footer_text_color',
+            'footer_text_halign',
+            'selection_color',
+            'text_color',
+            'grid_color',
+            'content_background_color',
+            'footer_background_color',
+            'header_background_color',
+        ]
+
+        export_metadata = True
+        export_filters  = True
+        export_aspect   = True
+
+        if 'no_metadata' in kargs.keys() and kargs['no_metadata'] :
+            export_metadata = False
+        if 'no_aspect'   in kargs.keys() and kargs['no_aspect'  ] :
+            export_aspect   = False
+        if 'no_filters'  in kargs.keys() and kargs['no_filters' ] :
+            export_filters  = False
+        
+        if export_metadata : to_export += metadata
+        if export_filters  : to_export += filters
+        if export_aspect   : to_export += aspect
+
+        values = {}
+        for key in to_export : 
+            values[key] = self.__getattribute__(key)
+        return json.dumps( values )
+
+    """
+    Save to the given file path settings in json format.
+    For options, see json_settings().
+    """
+    def save_settings( self, path, **kargs ) :
+        f = open( path, 'w' )
+        f.write( self.json_settings( **kargs ) )
+        f.close() 
+    
     """
     Will re-render the grid.
     """

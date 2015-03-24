@@ -1,6 +1,4 @@
 {
-    "version": 2,
-
     "headers": {
         "col1":"Sample Header #1",
         "col2":"Sample Header #2",

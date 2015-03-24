@@ -31,7 +31,7 @@ class TestApp( App ) :
         grid = ProGrid( 
             headers=headers, data=data, columns=columns, \
             row_filters=row_filters, row_sorting=row_sorting, \
-            size_hint=(1,1), pos=(0,0)
+            size_hint=(1,1), pos=(0,0),
         )
 
         self.t = FloatLayout( size_hint=(1,1) )#, size=WINDOW_SIZE )
