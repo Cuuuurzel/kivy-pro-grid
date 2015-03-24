@@ -801,7 +801,7 @@ class ProGridSearchForm( BoxLayout ) :
     keyfield = ObjectProperty( None )    
     keyfield_hint = StringProperty( 'Any keyword...' )    
 
-    def __init__( self, grid, **kargs ) :
+    def __init__( self, **kargs ) :
         if not 'grid' in kargs.keys() : raise ValueError( 'Grid not set.' )
         super( ProGridSearchForm, self ).__init__( **kargs )
         if len(self.col_whitelist) == 0 :
