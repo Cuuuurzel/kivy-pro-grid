@@ -207,7 +207,7 @@ class ProGrid( BoxLayout ) :
                 json_args = _fixkeys( json.loads(content) )
                 kargs.update( json_args )
             except : 
-                log( 'Settings file %s is invalid' % kargs['ini_file'] )
+                print( 'Settings file %s is invalid' % kargs['ini_file'] )
 
         super( ProGrid, self ).__init__( **kargs )
         self.___grid = {}
