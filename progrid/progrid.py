@@ -367,7 +367,7 @@ class ProGrid( BoxLayout ) :
             text = self.headers[column] 
             text = text.encode( 'utf-8' )
             text = u' '+text if first_col else text
-            lbl  = ColumnHeader( text=text, meta=column, **args )
+            lbl  = ColumnHeader( size_hint=(self.col_sizes[column],1), text=text, meta=column, **args )
             
             first_col = False
 
