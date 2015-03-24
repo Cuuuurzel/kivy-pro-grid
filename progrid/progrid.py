@@ -822,15 +822,29 @@ All the arguments are passed down to the content, which is a ProGridSearchForm.
 """
 class ProGridSearchPopup( FlatPopup ) :
 
+    """
+    Called just before the update of grid filters.
+    """
+    on_search = ObjectProperty( None )
+
+    """
+    Called just after the update of grid filters.
+    """
+    after_search = ObjectProperty( None )
+
     def __init__( self, **kargs ) :
         if not 'grid' in kargs.keys() : raise ValueError( 'Grid not set.' )
         super( ProGridSearchPopup, self ).__init__( **kargs )
-        self.content = ProGridSearchForm( 
-            on_search=self.on_search, after_search=self.after_search,
-            **kargs 
-        )
 
-    def on_search( self, *args ) :
+        kargs['on_search'   ] = self._on_search
+        kargs['after_search'] = self._after_search
+        self.content = ProGridSearchForm( **kargs )
+
+    def _on_search( self, *args ) :
+        if self.on_search : self.on_search()
+
+    def _after_search( self, *args ) :
+        if self.after_search : self.after_search()
         self.dismiss()
 
 """
