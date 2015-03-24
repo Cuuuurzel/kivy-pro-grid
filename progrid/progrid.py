@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+__all__ = [ 'ProGrid', 'ProGridCustomizator', 'ProGridSearchForm' ]
+
 import json
 import pdb
 import sys
@@ -460,7 +462,7 @@ class ProGrid( BoxLayout ) :
     Will apply given filters.
     """    
     def _validate_line( self, line ) :
-        for k in self.row_filters :
+        for k in self.row_filters.keys() :
             if not self.row_filters[k]( line[k] ) :
                 return False
         return True
@@ -756,6 +758,61 @@ Please quote ( '' ) any text in your filters.""" )
         return x
 
 """
+BoxLayout you can use to filter grid records.
+"""
+class ProGridSearchForm( BoxLayout ) :
+
+    """
+    Pointer to the grid, mandatory.
+    """
+    grid = ObjectProperty( None )
+
+    """
+    Columns used for matching.
+    Filtering is done using 'like', so be careful.
+    """
+    cols_whitelist = ListProperty( [] )
+
+    """
+    Called just before update grid filters.
+    """
+    on_search = ObjectProperty( None )
+    
+    """
+    Properties used for title...
+    """
+    title_text = StringProperty( 'Search anything' )
+    title_font_size = StringProperty( dp(22) )
+    title_font_name = StringProperty( '' )
+
+    """
+    Properties used for hint...
+    """
+    hint_text = StringProperty( 'Use any keyword to filter records.' )
+    hint_font_size = StringProperty( dp(16) )
+    hint_font_name = StringProperty( '' )
+
+    """
+    Text input for keywords.
+    """
+    keyfield = ObjectProperty( None )    
+    keyfield_hint = StringProperty( 'Any keyword...' )    
+
+    def __init__( self, grid, **kargs ) :
+        super( ProGridSearchForm, self ).__init__( **kargs )
+        if len(self.col_whitelist) == 0 :
+            self.col_whitelist = self.grid.columns
+
+    def do_search( self, *args ) :
+        if self.on_search : self.on_search()
+        v = self.keyfield.text.strip().lower()
+        foo = "lambda VAL: '%s' in VAL" % v
+        filters = []
+        for column in self.col_whitelist : filters[column] = foo
+        self.grid.row_filters = filters
+    
+
+"""
 Resizable widget.
 """
 class ColumnHeader( ResizeableLabel ) :
@@ -806,10 +863,12 @@ class RowLayout( ColorBoxLayout ) :
         return self.grid.records_readonly
 
 
+# Garbage used here and there
+
 """
 Used by filters...
 """
-def _format_val( v ) : return str(v).lower()
+def _format_val( v ) : return str(v).strip().lower()
 
 """
 Fixes unicode keys...
