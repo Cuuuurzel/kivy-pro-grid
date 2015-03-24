@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__all__ = [ 'ProGrid', 'ProGridCustomizator', 'ProGridSearchForm' ]
+__all__ = [ 'ProGrid', 'ProGridCustomizator', 'ProGridSearchForm', 'ProGridSearchPopup' ]
 
 import json
 import pdb
@@ -603,13 +603,11 @@ Please quote ( '' ) any text in your filters.""" )
     popup = ObjectProperty( None )
 
     def __init__( self, **kargs ) :
+        if not 'grid' in kargs.keys() : raise ValueError( 'Grid not set.' )
         super( ProGridCustomizator, self ).__init__( 
             icon=icon_settings_32, **kargs 
         )
         self._help_popup = OkButtonPopup( text=self.filters_help )
-        if not 'grid' in kargs.keys() :
-            raise ValueError( 'You need to provide a pointer to your grid using the "grid" parameter.' )
-        else : self.grid = kargs['grid']
 
     """
     Will exit customizer without commit changes.
@@ -774,9 +772,14 @@ class ProGridSearchForm( BoxLayout ) :
     cols_whitelist = ListProperty( [] )
 
     """
-    Called just before update grid filters.
+    Called just before the update of grid filters.
     """
     on_search = ObjectProperty( None )
+
+    """
+    Called just after the update of grid filters.
+    """
+    after_search = ObjectProperty( None )
     
     """
     Properties used for title...
@@ -799,6 +802,7 @@ class ProGridSearchForm( BoxLayout ) :
     keyfield_hint = StringProperty( 'Any keyword...' )    
 
     def __init__( self, grid, **kargs ) :
+        if not 'grid' in kargs.keys() : raise ValueError( 'Grid not set.' )
         super( ProGridSearchForm, self ).__init__( **kargs )
         if len(self.col_whitelist) == 0 :
             self.col_whitelist = self.grid.columns
@@ -810,7 +814,24 @@ class ProGridSearchForm( BoxLayout ) :
         filters = []
         for column in self.col_whitelist : filters[column] = foo
         self.grid.row_filters = filters
+        if self.after_search : self.after_search()
     
+"""
+FlatPopup you can use to filter grid records.
+All the arguments are passed down to the content, which is a ProGridSearchForm.
+"""
+class ProGridSearchPopup( FlatPopup ) :
+
+    def __init__( self, **kargs ) :
+        if not 'grid' in kargs.keys() : raise ValueError( 'Grid not set.' )
+        super( ProGridSearchPopup, self ).__init__( **kargs )
+        self.content = ProGridSearchForm( 
+            on_search=self.on_search, after_search=self.after_search,
+            **kargs 
+        )
+
+    def on_search( self, *args ) :
+        self.dismiss()
 
 """
 Resizable widget.
