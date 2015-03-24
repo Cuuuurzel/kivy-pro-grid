@@ -799,20 +799,25 @@ class ProGridSearchForm( BoxLayout ) :
     Text input for keywords.
     """
     keyfield = ObjectProperty( None )    
-    keyfield_hint = StringProperty( 'Any keyword...' )    
+    keyfield_hint = StringProperty( 'Any keyword...' )   
+
+    """
+    Others of less interest.
+    """
+    search_text = StringProperty( 'Search' )
 
     def __init__( self, **kargs ) :
         if not 'grid' in kargs.keys() : raise ValueError( 'Grid not set.' )
         super( ProGridSearchForm, self ).__init__( **kargs )
-        if len(self.col_whitelist) == 0 :
-            self.col_whitelist = self.grid.columns
+        if len(self.cols_whitelist) == 0 :
+            self.cols_whitelist = self.grid.columns
 
     def do_search( self, *args ) :
         if self.on_search : self.on_search()
         v = self.keyfield.text.strip().lower()
         foo = "lambda VAL: '%s' in VAL" % v
         filters = []
-        for column in self.col_whitelist : filters[column] = foo
+        for column in self.cols_whitelist : filters[column] = foo
         self.grid.row_filters = filters
         if self.after_search : self.after_search()
     
@@ -838,6 +843,11 @@ class ProGridSearchPopup( FlatPopup ) :
 
         kargs['on_search'   ] = self._on_search
         kargs['after_search'] = self._after_search
+        kargs['title_text'  ] = ''
+    
+        if 'title_font' in kargs.keys() :
+            kargs['title_font_name'] = kargs['title_font']
+
         self.content = ProGridSearchForm( **kargs )
 
     def _on_search( self, *args ) :

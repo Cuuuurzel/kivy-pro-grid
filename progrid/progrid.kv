@@ -12,6 +12,7 @@
         font_size: root.title_font_size
         font_name: root.title_font_name
         text: root.title_text
+        size_hint: ( 1, 1 if len(self.text)>0 else 0 )
 
     Label:
         font_size: root.hint_font_size
@@ -21,6 +22,11 @@
     FlatTextInput:
         id: keyfield
         hint: root.keyfield_hint
+
+    FlatButton:
+        text: root.search_text
+        font_size: root.hint_font_size
+        font_name: root.title_font_name
         on_press: root.do_search()
 
 #==============================================================================
