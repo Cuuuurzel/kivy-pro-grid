@@ -121,6 +121,12 @@ class ProGrid( BoxLayout ) :
     data_len_limit = NumericProperty( 1000 )
 
     """
+    Column size_hint_x in row layout. 
+    Default is 1 for every column.
+    """ 
+    col_sizes = DictProperty( {} ) 
+
+    """
     Use this to force cast on every column.
     """ 
     coltypes = DictProperty( {} ) 
@@ -207,12 +213,12 @@ class ProGrid( BoxLayout ) :
         self.___grid = {}
 
         #Bindings...
-        self.bind( data=self._render )
-        self.bind( columns=self._render )
-        self.bind( row_filters=self._render )
-        self.bind( row_sorting=self._render )
-        self.bind( data_len_limit=self._render )
-        self.bind( content_font_size=lambda o,v: self.setter('row_height')(o,v*2) )
+        self.bind( data              = self._render )
+        self.bind( columns           = self._render )
+        self.bind( row_filters       = self._render )
+        self.bind( row_sorting       = self._render )
+        self.bind( data_len_limit    = self._render )
+        self.bind( content_font_size = lambda o,v: self.setter('row_height')(o,v*2) )
 
         #Binding occurs after init, so we need to force first setup
         self._render( self.data )
@@ -305,7 +311,9 @@ class ProGrid( BoxLayout ) :
         self._setup_data( self.data )
         self._build_coltypes()
         
-        for col in self.columns : self.___grid[col] = []
+        for col in self.columns : 
+            self.___grid[col] = []
+            if col not in self.col_sizes.keys() : self.col_sizes[col] = 1
 
         #Header & footer
         self._gen_header()
@@ -394,7 +402,7 @@ class ProGrid( BoxLayout ) :
             padding          = [self.padding_h, self.padding_v],
             background_color = self.content_background_color,
         )
-        args = self._build_content_args()
+        args = self._build_row_args()
         
         first_col = True
         for column in self.columns :
@@ -406,13 +414,13 @@ class ProGrid( BoxLayout ) :
             if self._coltypes[column] == bool :
                 w = BoxLayout()
                 c = CheckBox( active=val, size_hint=(None,1), width=sp(32), **args )
-                s = BoxLayout( size_hint=(1,1) )
+                s = BoxLayout( size_hint=(self.col_sizes[column],1), **args )
                 w.add_widget( c )
                 w.add_widget( s )
             else : 
                 text = val if val not in ['None', u'None'] else u''
                 text = text.encode( 'utf-8' )
-                w = BindedLabel( text=text, **args )
+                w = BindedLabel( text=text, size_hint=(self.col_sizes[column],1), **args )
 
             b.add_widget( w )
             first_col = False
@@ -493,14 +501,14 @@ Be aware of performance issues.
     """
     Args passed down to content labels.
     """
-    def _build_content_args( self ) :        
+    def _build_row_args( self ) :        
         v_align   = {'valign'    :'middle'}
         font_name = {'font_name' :self.content_font_name} if self.content_font_name else {}
         font_size = {'font_size' :self.content_font_size} if self.content_font_size else {}
         h_align   = {'halign'    :self.content_align    } if self.content_align     else {}
         color     = {'color'     :self.text_color       } if self.text_color        else {}
         b_color   = {'fill_color':self.content_background_color } if self.content_background_color else {}
-        return self._build_dict( v_align, h_align, font_name, font_size, color, b_color )#, padding_x, padding_y )
+        return self._build_dict( v_align, h_align, font_name, font_size, color, b_color )
 
     """
     Called whenever a column is resized.
