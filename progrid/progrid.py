@@ -815,7 +815,7 @@ class ProGridSearchForm( BoxLayout ) :
     def do_search( self, *args ) :
         if self.on_search : self.on_search()
         v = self.keyfield.text.strip().lower()
-        foo = "lambda VAL: '''%s''' in VAL" % v
+        foo = "lambda VAL: '''%s'''.lower().strip() in _format_val(VAL)" % v
         filters = {}
         for column in self.cols_whitelist : filters[column] = eval(foo)
         self.grid.row_filters = filters
