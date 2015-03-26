@@ -646,7 +646,7 @@ Please quote ( '' ) any text in your filters.""" )
                 elif '$VAL' in expression :                 
                     foo = 'lambda VAL: %s' % ( expression.replace('$VAL','_format_val(VAL)') )
                 else :
-                    foo = "lambda VAL: _format_val(VAL) == _format_val('" + expression + "')"
+                    foo = "lambda VAL: _format_val(VAL) == _format_val('''" + expression + "''')"
 
                 try :
                     filters[ column ] = eval( foo )
@@ -815,9 +815,9 @@ class ProGridSearchForm( BoxLayout ) :
     def do_search( self, *args ) :
         if self.on_search : self.on_search()
         v = self.keyfield.text.strip().lower()
-        foo = "lambda VAL: '%s' in VAL" % v
-        filters = []
-        for column in self.cols_whitelist : filters[column] = foo
+        foo = "lambda VAL: '''%s''' in VAL" % v
+        filters = {}
+        for column in self.cols_whitelist : filters[column] = eval(foo)
         self.grid.row_filters = filters
         if self.after_search : self.after_search()
     
@@ -845,11 +845,10 @@ class ProGridSearchPopup( FlatPopup ) :
         kargs['after_search'] = self._after_search
         kargs['title_text'  ] = ''
         kargs.pop( 'size_hint', None )
-        kargs.pop( 'pos_hint', None )
+        kargs.pop( 'pos_hint',  None )
     
         if 'title_font' in kargs.keys() :
             kargs['title_font_name'] = kargs['title_font']
-
         self.content = ProGridSearchForm( **kargs )
 
     def _on_search( self, *args ) :
