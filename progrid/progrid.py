@@ -914,7 +914,7 @@ class RowLayout( ColorBoxLayout ) :
 """
 Used by filters...
 """
-def _format_val( v ) : return str(v).strip().lower()
+def _format_val( v ) : return unicode(v).strip().lower()
 
 """
 Fixes unicode keys...
