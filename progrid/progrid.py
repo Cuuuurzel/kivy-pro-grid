@@ -766,10 +766,10 @@ class ProGridSearchForm( BoxLayout ) :
     grid = ObjectProperty( None )
 
     """
-    Columns used for matching.
+    Columns used for matching, filter will be applied to every column!
     Filtering is done using 'like', so be careful.
     """
-    cols_whitelist = ListProperty( [] )
+    cols_to_filter = ListProperty( [] )
 
     """
     Called just before the update of grid filters.
@@ -809,15 +809,15 @@ class ProGridSearchForm( BoxLayout ) :
     def __init__( self, **kargs ) :
         if not 'grid' in kargs.keys() : raise ValueError( 'Grid not set.' )
         super( ProGridSearchForm, self ).__init__( **kargs )
-        if len(self.cols_whitelist) == 0 :
-            self.cols_whitelist = self.grid.columns
+        if len(self.cols_to_filter) == 0 :
+            raise ValueError( 'Need to indicate at least one column to filter' )
 
     def do_search( self, *args ) :
         if self.on_search : self.on_search()
         v = self.keyfield.text.strip().lower()
         foo = "lambda VAL: '''%s'''.lower().strip() in _format_val(VAL)" % v
         filters = {}
-        for column in self.cols_whitelist : filters[column] = eval(foo)
+        for column in self.cols_to_filter : filters[column] = eval(foo)
         self.grid.row_filters = filters
         if self.after_search : self.after_search()
     
