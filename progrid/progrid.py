@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__all__ = [ 'ProGrid', 'ProGridCustomizator', 'ProGridSearchForm', 'ProGridSearchPopup' ]
+__all__ = [ 'ProGrid', 'ProGridCustomizator', 'ProGridSearchPopup' ]
 
 import json
 import pdb
@@ -756,9 +756,9 @@ Please quote ( '' ) any text in your filters.""" )
         return x
 
 """
-Layout you can use to filter grid records.
+Popup you can use to filter grid records.
 """
-class ProGridSearchForm( BoxLayout ) :
+class ProGridSearchPopup( FlatPopup ) :
 
     """
     Pointer to the grid, mandatory.
@@ -804,11 +804,11 @@ class ProGridSearchForm( BoxLayout ) :
     """
     Others of less interest.
     """
-    search_text = StringProperty( 'Search' )
+    search_text = StringProperty( 'SEARCH' )
 
     def __init__( self, **kargs ) :
-        if not 'grid' in kargs.keys() : raise ValueError( 'Grid not set.' )
-        super( ProGridSearchForm, self ).__init__( **kargs )
+        if not 'grid' in kargs.keys() : raise ValueError( 'Grid not set.' )        
+        super( ProGridSearchPopup, self ).__init__( **kargs )
         if len(self.cols_to_filter) == 0 :
             raise ValueError( 'Need to indicate at least one column to filter' )
 
@@ -819,44 +819,12 @@ class ProGridSearchForm( BoxLayout ) :
         filters = {}
         for column in self.cols_to_filter : filters[column] = eval(foo)
         self.grid.row_filters = filters
-        if self.after_search : self.after_search()
-    
-"""
-FlatPopup you can use to filter grid records.
-All the arguments are passed down to the content, which is a ProGridSearchForm.
-"""
-class ProGridSearchPopup( FlatPopup ) :
+        self.do_after_search()
 
-    """
-    Called just before the update of grid filters.
-    """
-    on_search = ObjectProperty( None )
-
-    """
-    Called just after the update of grid filters.
-    """
-    after_search = ObjectProperty( None )
-
-    def __init__( self, **kargs ) :
-        if not 'grid' in kargs.keys() : raise ValueError( 'Grid not set.' )
-        super( ProGridSearchPopup, self ).__init__( **kargs )
-
-        kargs['on_search'   ] = self._on_search
-        kargs['after_search'] = self._after_search
-        kargs['title_text'  ] = ''
-        kargs.pop( 'size_hint', None )
-        kargs.pop( 'pos_hint',  None )
-    
-        if 'title_font' in kargs.keys() :
-            kargs['title_font_name'] = kargs['title_font']
-        self.content = ProGridSearchForm( **kargs )
-
-    def _on_search( self, *args ) :
-        if self.on_search : self.on_search()
-
-    def _after_search( self, *args ) :
+    def do_after_search( self ) :
         if self.after_search : self.after_search()
         self.dismiss()
+
 
 """
 Resizable widget.
@@ -868,6 +836,7 @@ class ColumnHeader( ResizeableLabel ) :
     def __init__( self, **kargs ) :
         super( ColumnHeader, self ).__init__( **kargs )
         self.on_new_size = self.grid.on_column_resize
+
 
 """
 Row layout, with tap, double tap and long press callback.
