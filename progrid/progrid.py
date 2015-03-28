@@ -28,7 +28,7 @@ from kivy.uix.textinput import TextInput
 from material_ui.flatui.flatui import FlatButton, FlatTextInput, FloatingAction
 from material_ui.flatui.labels import BindedLabel, ResizeableLabel
 from material_ui.flatui.layouts import ColorBoxLayout
-from material_ui.flatui.popups import AlertPopup, FlatPopup, OkButtonPopup
+from material_ui.flatui.popups import AlertPopup, FlatPopup
 
 #KV Lang files
 from pkg_resources import resource_filename
@@ -607,7 +607,7 @@ Please quote ( '' ) any text in your filters.""" )
         super( ProGridCustomizator, self ).__init__( 
             icon=icon_settings_32, **kargs 
         )
-        self._help_popup = OkButtonPopup( text=self.filters_help )
+        self._help_popup = AlertPopup( text=self.filters_help )
 
     """
     Will exit customizer without commit changes.
