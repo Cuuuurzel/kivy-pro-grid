@@ -1,32 +1,5 @@
 #:kivy 1.8
 
-#==============================================================================
-<ProGridSearchPopup>:
-#==============================================================================
-    keyfield: keyfield
-    content: content
-
-    BoxLayout
-        id: content
-        size_hint: 1, 1
-        orientation: 'vertical'
-
-        Label:
-            font_size: root.hint_font_size
-            font_name: root.hint_font_name
-            text: root.hint_text
-
-        FlatTextInput:
-            id: keyfield
-            hint: root.keyfield_hint
-            font_size: root.hint_font_size
-            font_name: root.hint_font_name
-            
-        FlatButton:
-            text: root.search_text
-            font_size: root.hint_font_size
-            font_name: root.title_font_name
-            on_press: root.do_search()
 
 #==============================================================================
 <ProGridCustomizator>:

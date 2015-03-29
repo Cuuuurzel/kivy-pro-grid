@@ -28,7 +28,7 @@ from kivy.uix.textinput import TextInput
 from material_ui.flatui.flatui import FlatButton, FlatTextInput, FloatingAction
 from material_ui.flatui.labels import BindedLabel, ResizeableLabel
 from material_ui.flatui.layouts import ColorBoxLayout
-from material_ui.flatui.popups import AlertPopup, FlatPopup
+from material_ui.flatui.popups import AlertPopup, AskTextPopup, FlatPopup
 
 #KV Lang files
 from pkg_resources import resource_filename
@@ -758,7 +758,7 @@ Please quote ( '' ) any text in your filters.""" )
 """
 Popup you can use to filter grid records.
 """
-class ProGridSearchPopup( FlatPopup ) :
+class ProGridSearchPopup( AskTextPopup ) :
 
     """
     Pointer to the grid, mandatory.
@@ -782,31 +782,14 @@ class ProGridSearchPopup( FlatPopup ) :
     after_search = ObjectProperty( None )
     
     """
-    Properties used for title...
-    """
-    title_text = StringProperty( 'Search anything' )
-    title_font_size = StringProperty( dp(22) )
-    title_font_name = StringProperty( '' )
-
-    """
-    Properties used for hint...
-    """
-    hint_text = StringProperty( 'Use any keyword to filter records.' )
-    hint_font_size = StringProperty( dp(18) )
-    hint_font_name = StringProperty( '' )
-
-    """
-    Text input for keywords.
-    """
-    keyfield = ObjectProperty( None )    
-    keyfield_hint = StringProperty( 'Any keyword...' )   
-
-    """
     Others of less interest.
     """
     search_text = StringProperty( 'SEARCH' )
 
     def __init__( self, **kargs ) :
+
+        kargs['ok_button_on_press'] = self.do_search
+
         if not 'grid' in kargs.keys() : raise ValueError( 'Grid not set.' )        
         super( ProGridSearchPopup, self ).__init__( **kargs )
         if len(self.cols_to_filter) == 0 :
@@ -814,7 +797,7 @@ class ProGridSearchPopup( FlatPopup ) :
 
     def do_search( self, *args ) :
         if self.on_search : self.on_search()
-        v = self.keyfield.text.strip().lower()
+        v = self.input_field.text.strip().lower()
         foo = "lambda VAL: '''%s'''.lower().strip() in _format_val(VAL)" % v
         filters = {}
         for column in self.cols_to_filter : filters[column] = eval(foo)
