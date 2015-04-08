@@ -213,7 +213,8 @@ class ProGrid( BoxLayout ) :
                 content = '\n'.join( f.readlines() )
                 f.close()
                 json_args = _fixkeys( json.loads(content) )
-                kargs.update( json_args )
+                json_args.update( kargs )
+                kargs = json_args
             except : 
                 print( 'Settings file %s is invalid' % kargs['ini_file'] )
 
