@@ -139,6 +139,11 @@ class ProGrid( BoxLayout ) :
     text_no_data = StringProperty( 'No data found.' )
 
     """
+    If enabled, data will be shown only if filtered.
+    """
+    force_filtering = BooleanProperty( False )
+
+    """
     Content properties...
     """
     content           = ObjectProperty( None )
@@ -194,9 +199,10 @@ class ProGrid( BoxLayout ) :
     """
     Private stuffs...
     """
-    _data     = ListProperty( [] )
-    _rows     = ListProperty( [] ) 
-    _coltypes = DictProperty( {} )
+    _data         = ListProperty( [] )
+    _rows         = ListProperty( [] ) 
+    _coltypes     = DictProperty( {} )
+    _avoid_update = BooleanProperty( False )
 
 
     def __init__( self, **kargs ) :
@@ -215,15 +221,18 @@ class ProGrid( BoxLayout ) :
         self.___grid = {}
 
         #Bindings...
-        self.bind( data              = self._render )
-        self.bind( columns           = self._render )
-        self.bind( row_filters       = self._render )
-        self.bind( row_sorting       = self._render )
-        self.bind( data_len_limit    = self._render )
+        self.bind( data              = self._re_render  )
+        self.bind( columns           = self._re_render )
+        self.bind( row_filters       = self._re_render )
+        self.bind( row_sorting       = self._re_render )
+        self.bind( data_len_limit    = self._re_render )
         self.bind( content_font_size = lambda o,v: self.setter('row_height')(o,v*2) )
 
         #Binding occurs after init, so we need to force first setup
         self._render( self.data )
+    
+    def _re_render( self, *args ) :
+        return None if self._avoid_update else self._render
 
     """
     Return a json string containing settings.
@@ -387,9 +396,9 @@ class ProGrid( BoxLayout ) :
             color     = self.footer_text_color,
             font_size = self.footer_text_font_size,
         )
-        if self.footer_text_font_name : 
+        if self.footer_text_font_name and self._show_no_data() : 
             lbl.font_name = self.footer_text_font_name
-        self.footer.add_widget( lbl )
+            self.footer.add_widget( lbl )
 
     """
     Will generate a single row.
@@ -442,8 +451,10 @@ class ProGrid( BoxLayout ) :
             self.data[i]['_progrid_order'] = i
 
         self._data = []
-        if len( data ) > 0 :
 
+        if self._show_no_data() :
+            self.add_widget( Label( text=self.text_no_data, color=self.text_color ) )
+        else :
             #Data used by customizator
             self._all_columns = self.data[0].keys()           
 
@@ -455,9 +466,16 @@ class ProGrid( BoxLayout ) :
                 field, mode = self.row_sorting[0]
                 reverse = False if mode == 'asc' else True
                 self._data = sorted( self._data, key=lambda o: o[field], reverse=reverse )
-        else :
-            self.add_widget( Label( text=self.text_no_data, color=self.text_color ) )
          
+    """
+    If true the no-data-text is shown.
+    """
+    def _show_no_data( self ) :
+        no_filters     = len(self.row_filters) == 0
+        filters_not_ok = self.force_filtering and no_filters
+        no_data        = len( self.data ) == 0
+        return filters_not_ok or no_data
+
     """
     Will apply given filters.
     """    
@@ -531,9 +549,9 @@ Be aware of performance issues.
         columns = ( set(self.headers.keys()) - set(self.coltypes) )
         self._coltypes = self.coltypes
 
-        if len( self._data ) > 0 : 
+        if not self._show_no_data() : 
             line = self._data[0]
-        else : line = [ '' for c in columns ]
+        else : line = dict( [ (c,'') for c in columns ] )
 
         for column in columns :
 
@@ -547,10 +565,13 @@ Be aware of performance issues.
     Will update a single row of the grid.
     """
     def update_single_row( self, rowid, data ) :
-        self.data[rowid] = data
-        self.content.remove_widget( self._rows[rowid] )
-        self._rows[rowid] = self._gen_row( data, rowid )
-        self.content.add_widget( self._rows[rowid], len(self.content.children) )
+        if len( self._data ) > 0 :
+            self._avoid_update = True
+            self.data[rowid] = data
+            self.content.remove_widget( self._rows[rowid] )
+            self._rows[rowid] = self._gen_row( data, rowid )
+            self.content.add_widget( self._rows[rowid], len(self.content.children) )
+            self._avoid_update = False
 
 
 """

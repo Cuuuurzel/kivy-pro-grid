@@ -24,23 +24,29 @@ class TestApp( App ) :
         
         headers     = { 'name':'Nome', 'surname':'Cognome', 'birth':'Data di nascita', 'sample':'Bool sample' }
         columns     = [ 'surname', 'name', 'birth', 'sample' ]
-        row_filters = { 'name':lambda n: n.startswith('M') } 
-        row_filters_names = { 'name':"Nomi che iniziano con la 'M'" } 
         row_sorting = [ ['surname','asc'] ]
+        row_filters = {}#{ 'name':lambda n: n.startswith('M') } 
+        row_filters_names = { 'name':"Nomi che iniziano con la 'M'" } 
     
         grid = ProGrid( 
-            headers=headers, data=data, columns=columns, \
-            row_filters=row_filters, row_sorting=row_sorting, \
-            size_hint=(1,1), pos=(0,0),
+            size_hint         = ( 1, 1 ), 
+            pos               = ( 0, 0 ),
+            headers           = headers, 
+            columns           = columns,
+            data              = data, 
+            row_filters       = row_filters, 
+            row_sorting       = row_sorting,
+            #force_filtering   = True,
         )
 
-        self.t = FloatLayout( size_hint=(1,1) )#, size=WINDOW_SIZE )
+        self.t = FloatLayout( size_hint=(1,1) )
         self.t.add_widget( grid )
         ProGridCustomizator( grid=grid ).add_to_bottom_right( self.t )
 
-
+        # Run-time update example
         new_data = { 'name':'Pro grid rocks', 'surname':'Suuuurnameee!', 'birth':'not a date field, lol', 'sample':True }
         grid.update_single_row( 4, new_data )
+
         return self.t
 
     def on_pause( self, *args ) : return True
