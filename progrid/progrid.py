@@ -233,7 +233,7 @@ class ProGrid( BoxLayout ) :
         self._render( self.data )
     
     def _re_render( self, *args ) :
-        return None if self._avoid_update else self._render
+        return None if self._avoid_update else self._render()
 
     """
     Return a json string containing settings.
