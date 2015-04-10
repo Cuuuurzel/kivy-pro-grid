@@ -453,8 +453,13 @@ class ProGrid( BoxLayout ) :
 
         self._data = []
 
+        try :
+            self.remove_widget( self._no_data_label )
+        except : pass
+
         if self._show_no_data() :
-            self.add_widget( Label( text=self.text_no_data, color=self.text_color ) )
+            self._no_data_label = Label( text=self.text_no_data, color=self.text_color )
+            self.add_widget( self._no_data_label )
         else :
             #Data used by customizator
             self._all_columns = self.data[0].keys()           
@@ -550,9 +555,10 @@ Be aware of performance issues.
         columns = ( set(self.headers.keys()) - set(self.coltypes) )
         self._coltypes = self.coltypes
 
-        if not self._show_no_data() : 
+        if not self._show_no_data() and len(self._data) > 0 : 
             line = self._data[0]
-        else : line = dict( [ (c,'') for c in columns ] )
+        else : 
+            line = dict( [ (c,'') for c in columns ] )
 
         for column in columns :
 
